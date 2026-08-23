@@ -1,0 +1,137 @@
+.card {
+  background: #ffffff;
+  padding: 36px 40px;
+  max-width: 480px;
+}
+
+.cardTitle {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #A74419;
+  margin: 0 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0ddd5;
+}
+
+.cardDesc {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #888;
+  line-height: 1.65;
+  margin: 0 0 24px;
+}
+
+.msg {
+  font-family: var(--font-body);
+  font-size: 11px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  border-left: 3px solid transparent;
+}
+
+.msgOk  { background: #f0faf0; border-color: #4caf50; color: #2e7d32; }
+.msgErr { background: #fff0f0; border-color: #e53935; color: #c62828; }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e0c8be;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.inputRow:focus-within {
+  border-color: #DB663B;
+}
+
+.prefix {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  padding: 0 10px 0 14px;
+  white-space: nowrap;
+  border-right: 1px solid #e0c8be;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #000;
+  border: none;
+  outline: none;
+  padding: 0 14px;
+  height: 40px;
+  width: 100%;
+  background: transparent;
+}
+
+.saveBtn {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #A74419;
+  border: none;
+  padding: 12px 28px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) { background: #8a3614; }
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.currentWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f0ddd5;
+}
+
+.currentLabel {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+.currentValue {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #A74419;
+}

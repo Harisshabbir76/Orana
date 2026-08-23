@@ -1,0 +1,96 @@
+.hero {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: visible;
+}
+
+.bg {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.heading {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: 25px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  padding-top: 120px;
+  text-align: center;
+}
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   heading font-size scales for readability ----- */
+@media (max-width: 1024px) {
+  .hero {
+    height: 480px;
+  }
+  .heading {
+    font-size: 22px;
+    padding-top: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: 400px;
+  }
+  .heading {
+    font-size: 19px;
+    padding-top: 80px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    height: 350px;
+  }
+  .heading {
+    font-size: 17px;
+    padding-top: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 300px;
+  }
+  .heading {
+    font-size: 15px;
+    padding-top: 60px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero {
+    height: 250px;
+  }
+  .heading {
+    font-size: 13px;
+    padding-top: 50px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .hero {
+    height: 650px;
+  }
+  .heading {
+    font-size: 30px;
+    padding-top: 140px;
+  }
+}

@@ -1,0 +1,372 @@
+.section {
+  width: 100%;
+  background: #FFF5F2;
+  padding: 0px 0 40px;
+  box-sizing: border-box;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 70px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+/* ── Image collage ── */
+.collage {
+  position: relative;
+  flex-shrink: 0;
+  width: 450px;
+  height: 300px;
+}
+
+/* img1 — flat lay, top-left */
+.img1Wrap {
+  position: absolute;
+  left: 0;
+  top: 50px;
+  width: 150px;
+  height:200px;
+  z-index: 1;
+}
+
+/* img2 — tall abaya detail, center */
+.img2Wrap {
+  position: absolute;
+  left: 175px;
+  top: 100px;
+  width: 140px;
+  height: 180px;
+}
+
+/* img3 — orange on bike, top-right */
+.img3Wrap {
+  position: absolute;
+  right: 0;
+  top: 80px;
+  width: 110px;
+  height: 130px;
+  z-index: 1;
+}
+
+/* lemon slice — floating above, between img2 and img3 */
+.lemonWrap {
+  position: absolute;
+  left: 280px;
+  top: 40px;
+  width: 80px;
+  height: 80px;
+  z-index: 4;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.18));
+}
+
+.img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.lemonImg {
+  object-fit: contain;
+}
+
+/* ── Text column ── */
+.textCol {
+  margin-top: -100px;
+  flex: 1;
+}
+
+.para {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: #000000;
+  max-width: 370px;
+  margin: 0 0 20px 0;
+}
+
+.para:last-child {
+  margin-bottom: 0;
+}
+
+.para strong {
+  font-weight: 700;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   .para remains 10px ----- */
+@media (max-width: 1024px) {
+  .inner {
+    gap: 50px;
+    padding: 0 30px;
+    justify-content: center;
+  }
+  .collage {
+    width: 380px;
+    height: 260px;
+    flex-shrink: 0;
+  }
+  .img1Wrap {
+    width: 130px;
+    height: 170px;
+    top: 40px;
+  }
+  .img2Wrap {
+    left: 150px;
+    top: 85px;
+    width: 120px;
+    height: 155px;
+  }
+  .img3Wrap {
+    width: 95px;
+    height: 115px;
+    top: 65px;
+  }
+  .lemonWrap {
+    left: 235px;
+    top: 30px;
+    width: 70px;
+    height: 70px;
+  }
+  .textCol {
+    margin-top: -80px;
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .para {
+    max-width: 320px;
+    text-align: center;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 0px 0 32px;
+  }
+  .inner {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 24px;
+  }
+  .collage {
+    width: 100%;
+    max-width: 450px;
+    height: 280px;
+  }
+  .img1Wrap {
+    width: 140px;
+    height: 185px;
+    top: 40px;
+  }
+  .img2Wrap {
+    left: 160px;
+    top: 90px;
+    width: 130px;
+    height: 165px;
+  }
+  .img3Wrap {
+    width: 100px;
+    height: 120px;
+    top: 70px;
+    right: 40;
+  }
+  .lemonWrap {
+    left: 255px;
+    top: 30px;
+    width: 75px;
+    height: 75px;
+  }
+  .textCol {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .para {
+    max-width: 400px;
+    text-align: center;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 600px) {
+  .inner {
+    padding: 0 16px;
+    gap: 24px;
+  }
+  .collage {
+    max-width: 380px;
+    height: 240px;
+  }
+  .img1Wrap {
+    width: 120px;
+    height: 160px;
+    top: 30px;
+  }
+  .img2Wrap {
+    left: 135px;
+    top: 75px;
+    width: 110px;
+    height: 140px;
+  }
+  .img3Wrap {
+    width: 85px;
+    height: 100px;
+    top: 60px;
+  }
+  .lemonWrap {
+    left: 210px;
+    top: 20px;
+    width: 65px;
+    height: 65px;
+  }
+  .para {
+    max-width: 390px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 0px 0 24px;
+  }
+  .inner {
+    padding: 0 12px;
+    gap: 20px;
+  }
+  .collage {
+    max-width: 320px;
+    height: 200px;
+  }
+  .img1Wrap {
+    width: 100px;
+    height: 135px;
+    top: 25px;
+  }
+  .img2Wrap {
+    left: 115px;
+    top: 65px;
+    width: 92px;
+    height: 118px;
+  }
+  .img3Wrap {
+    width: 72px;
+    height: 100px;
+    top: 50px;
+    right: 25;
+  }
+  .lemonWrap {
+    left: 190px;
+    top: 35px;
+    width: 55px;
+    height: 55px;
+  }
+  .para {
+    max-width: 280px;
+    line-height: 1.4;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 360px) {
+  .section {
+    padding: 0px 0 20px;
+  }
+  .inner {
+    padding: 0 8px;
+    gap: 16px;
+  }
+  .collage {
+    max-width: 270px;
+    height: 170px;
+  }
+  .img1Wrap {
+    width: 85px;
+    height: 115px;
+    top: 20px;
+  }
+  .img2Wrap {
+    left: 95px;
+    top: 55px;
+    width: 78px;
+    height: 100px;
+  }
+  .img3Wrap {
+    width: 60px;
+    height: 85px;
+    top: 42px;
+  }
+  .lemonWrap {
+    left: 155px;
+    top: 30px;
+    width: 46px;
+    height: 46px;
+  }
+  .para {
+    max-width: 280px;
+    line-height: 1.3;
+    /* font-size stays 10px */
+  }
+}
+
+@media (min-width: 1400px) {
+  .section {
+    padding: 0px 0 48px;
+  }
+  .inner {
+    gap: 80px;
+    padding: 0 60px;
+    max-width: 1200px;
+  }
+  .collage {
+    width: 520px;
+    height: 350px;
+  }
+  .img1Wrap {
+    width: 175px;
+    height: 230px;
+    top: 55px;
+  }
+  .img2Wrap {
+    left: 200px;
+    top: 115px;
+    width: 160px;
+    height: 205px;
+  }
+  .img3Wrap {
+    width: 125px;
+    height: 150px;
+    top: 90px;
+  }
+  .lemonWrap {
+    left: 320px;
+    top: 45px;
+    width: 90px;
+    height: 90px;
+  }
+  .textCol {
+    margin-top: -120px;
+  }
+  .para {
+    max-width: 420px;
+    /* font-size stays 10px */
+  }
+}

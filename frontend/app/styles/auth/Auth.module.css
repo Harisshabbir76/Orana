@@ -1,0 +1,515 @@
+.page {
+  min-height: 100vh;
+  background: #FFF5F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  padding: 48px 44px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  color: #DB663B;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.tagline {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin: 0 0 32px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  width: 100%;
+  border-bottom: 1.5px solid #f0ddd5;
+  margin-bottom: 28px;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 11px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1.5px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.tabBtn:hover {
+  color: #DB663B;
+}
+
+.tabBtnActive {
+  color: #DB663B;
+  border-bottom-color: #DB663B;
+}
+
+/* Error */
+.error {
+  width: 100%;
+  background: #fde8e8;
+  color: #cc2200;
+  font-family: var(--font-body);
+  font-size: 11px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-left: 3px solid #cc2200;
+}
+
+/* Form */
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.input {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #000;
+  background: #fdf6f3;
+  border: 1px solid #e8d8d0;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #DB663B;
+}
+
+.submitBtn {
+  margin-top: 4px;
+  padding: 14px;
+  background: #A74419;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.submitBtn:hover {
+  background: #8a3614;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.switchText {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  margin: 0;
+}
+
+.switchLink {
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #DB663B;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Password with eye toggle */
+.passwordWrap {
+  position: relative;
+}
+
+.passwordWrap .input {
+  padding-right: 36px;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #bbb;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.eyeBtn:hover { color: #DB663B; }
+
+/* Forgot password link (below password field) */
+.forgotLink {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  align-self: flex-end;
+  margin-top: 2px;
+}
+
+.forgotLink:hover { color: #DB663B; }
+
+/* Forgot flow title */
+.forgotTitle {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #DB663B;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+/* Step description under forgot title */
+.stepNote {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #888;
+  text-align: center;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+/* Back button inside forgot flow */
+.backBtn {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: center;
+}
+
+.backBtn:hover { color: #DB663B; }
+
+/* OTP input — large centered digits */
+.otpInput {
+  text-align: center;
+  letter-spacing: 6px;
+  font-size: 18px;
+}
+
+/* Success message after reset */
+.successMsg {
+  width: 100%;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-family: var(--font-body);
+  font-size: 11px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-left: 3px solid #2e7d32;
+}
+
+
+/* ----- responsiveness: only layout & spacing adapt,
+   all text sizes remain fixed ----- */
+@media (max-width: 1024px) {
+  .page {
+    padding: 32px 16px;
+  }
+  .card {
+    max-width: 440px;
+    padding: 40px 36px 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 28px 16px;
+  }
+  .card {
+    max-width: 400px;
+    padding: 36px 32px 32px;
+  }
+  .brand {
+    font-size: 24px;
+    letter-spacing: 0.25em;
+  }
+  .tagline {
+    font-size: 8px;
+    margin: 0 0 28px;
+  }
+  .tabs {
+    margin-bottom: 24px;
+  }
+  .tabBtn {
+    font-size: 9px;
+    padding: 10px 0;
+  }
+  .form {
+    gap: 16px;
+  }
+  .row {
+    gap: 12px;
+  }
+  .input {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  .submitBtn {
+    padding: 12px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 12px;
+    align-items: flex-start;
+  }
+  .card {
+    padding: 32px 28px 28px;
+    max-width: 380px;
+  }
+  .brand {
+    font-size: 22px;
+  }
+  .tagline {
+    font-size: 8px;
+    margin: 0 0 24px;
+  }
+  .row {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .input {
+    font-size: 11px;
+    padding: 9px 12px;
+  }
+  .submitBtn {
+    padding: 11px;
+    font-size: 9px;
+  }
+  .switchText {
+    font-size: 10px;
+  }
+  .switchLink {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 28px 20px 24px;
+    max-width: 100%;
+  }
+  .brand {
+    font-size: 20px;
+    letter-spacing: 0.2em;
+  }
+  .tagline {
+    font-size: 7px;
+    margin: 0 0 20px;
+  }
+  .tabs {
+    margin-bottom: 20px;
+  }
+  .tabBtn {
+    font-size: 8px;
+    padding: 8px 0;
+    letter-spacing: 0.1em;
+  }
+  .row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .form {
+    gap: 14px;
+  }
+  .label {
+    font-size: 8px;
+  }
+  .input {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+  .submitBtn {
+    padding: 12px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+  .error {
+    font-size: 10px;
+    padding: 8px 12px;
+  }
+  .switchText {
+    font-size: 10px;
+  }
+  .switchLink {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .page {
+    padding: 0px 8px;
+  }
+  .card {
+    padding: 20px 14px 20px;
+  }
+  .brand {
+    font-size: 18px;
+    letter-spacing: 0.15em;
+  }
+  .tagline {
+    font-size: 7px;
+    margin: 0 0 16px;
+    letter-spacing: 0.15em;
+  }
+  .tabs {
+    margin-bottom: 16px;
+  }
+  .tabBtn {
+    font-size: 7px;
+    padding: 6px 0;
+    letter-spacing: 0.08em;
+  }
+  .form {
+    gap: 12px;
+  }
+  .row {
+    gap: 12px;
+  }
+  .label {
+    font-size: 7px;
+    letter-spacing: 0.1em;
+  }
+  .input {
+    font-size: 10px;
+    padding: 8px 10px;
+  }
+  .submitBtn {
+    padding: 10px;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+  .error {
+    font-size: 9px;
+    padding: 6px 10px;
+  }
+  .switchText {
+    font-size: 9px;
+  }
+  .switchLink {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .page {
+    padding: 48px 24px;
+  }
+  .card {
+    max-width: 520px;
+    padding: 56px 52px 52px;
+  }
+  .brand {
+    font-size: 30px;
+    letter-spacing: 0.35em;
+  }
+  .tagline {
+    font-size: 10px;
+    margin: 0 0 36px;
+  }
+  .tabs {
+    margin-bottom: 32px;
+  }
+  .tabBtn {
+    font-size: 11px;
+    padding: 12px 0;
+  }
+  .form {
+    gap: 20px;
+  }
+  .row {
+    gap: 16px;
+  }
+  .label {
+    font-size: 10px;
+  }
+  .input {
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+  .submitBtn {
+    padding: 16px;
+    font-size: 11px;
+  }
+  .switchText {
+    font-size: 12px;
+  }
+  .switchLink {
+    font-size: 12px;
+  }
+}

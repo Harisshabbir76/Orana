@@ -1,0 +1,383 @@
+.section {
+  width: 100%;
+  background-color: #FFF5F2;
+  padding: 40px 150px 40px;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: 25px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #DB663B;
+  margin: 0 0 16px 0;
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: #000000;
+  max-width: 470px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  flex: 0 0 auto;
+  width: 150px;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.productImage {
+  object-fit: contain;
+  object-position: center center;
+  width: 100%;
+  height: 100%;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: #f5e8e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #DB663B;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Hover overlay elements ── */
+
+.iconGroup {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  z-index: 2;
+}
+
+.iconBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #DB663B;
+  transition: background 0.18s ease, color 0.18s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.iconBtn:hover {
+  background: #DB663B;
+  color: #ffffff;
+}
+
+.addToCart {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #A74419;
+  color: #FFFCF8;
+  border: none;
+  padding: 10px 0;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  z-index: 2;
+  border-radius: 4px 4px 0 0;
+}
+
+/* Trigger on card hover */
+.card:hover .iconGroup,
+.card:hover .addToCart {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Trigger on card hover */
+
+/* ── Out of stock ── */
+.cardOos {
+  opacity: 0.6;
+  filter: grayscale(0.4);
+}
+
+.oosBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  z-index: 3;
+}
+
+.addToCartOos {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  background: #999;
+  cursor: default;
+}
+
+/* ── Info ── */
+
+.info {
+  text-align: center;
+  padding: 14px 0 18px;
+}
+
+.name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #A74419;
+  margin: 0 0 4px 0;
+}
+
+.price {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: #000000;
+  margin: 0;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #999;
+}
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   .subtitle, .addToCart, .name, .price, .empty remain fixed sizes ----- */
+@media (max-width: 1024px) {
+  .section {
+    padding: 40px 80px 40px;
+  }
+  .grid {
+    gap: 16px;
+  }
+  .card {
+    width: 140px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 32px 40px 32px;
+  }
+  .header {
+    margin-bottom: 28px;
+  }
+  .heading {
+    font-size: 22px;
+    margin: 0 0 12px 0;
+  }
+  .subtitle {
+    max-width: 370px;
+    /* font-size stays 10px */
+  }
+  .grid {
+    gap: 16px;
+  }
+  .card {
+    width: 130px;
+  }
+  .info {
+    padding: 12px 0 16px;
+  }
+  .name {
+    font-size: 11px;        /* scales slightly for readability */
+  }
+  .price {
+    font-size: 10px;        /* scales slightly for readability */
+  }
+  .addToCart {
+    padding: 8px 0;
+    font-size: 8px;         /* scales slightly for readability */
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 28px 16px 28px;
+  }
+  .header {
+    margin-bottom: 24px;
+  }
+  .heading {
+    font-size: 18px;
+    margin: 0 0 10px 0;
+  }
+  .subtitle {
+    max-width: 300px;
+    line-height: 1.4;
+    /* font-size stays 10px */
+  }
+  .grid {
+    gap: 12px;
+    justify-content: center;
+  }
+  .card {
+    width: calc(50% - 6px);
+    max-width: 160px;
+    min-width: 120px;
+  }
+  .info {
+    padding: 10px 0 14px;
+  }
+  .name {
+    font-size: 10px;
+    margin: 0 0 2px 0;
+  }
+  .price {
+    font-size: 10px;
+  }
+  .addToCart {
+    padding: 8px 0;
+    font-size: 8px;
+    letter-spacing: 0.10em;
+  }
+  .iconBtn {
+    width: 26px;
+    height: 26px;
+  }
+  .iconGroup {
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+  }
+  .empty {
+    font-size: 11px;
+    padding: 40px 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .section {
+    padding: 24px 12px 24px;
+  }
+  .heading {
+    font-size: 16px;
+  }
+  .subtitle {
+    max-width: 280px;
+    /* font-size stays 10px */
+  }
+  .card {
+    width: calc(50% - 6px);
+    min-width: 100px;
+  }
+  .grid {
+    gap: 10px;
+  }
+  .name {
+    font-size: 9px;
+  }
+  .price {
+    font-size: 9px;
+  }
+  .addToCart {
+    font-size: 7px;
+    padding: 6px 0;
+  }
+  .iconBtn {
+    width: 22px;
+    height: 22px;
+  }
+  .placeholder {
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .section {
+    padding: 48px 200px 48px;
+  }
+  .heading {
+    font-size: 28px;
+  }
+  .subtitle {
+    max-width: 520px;
+    /* font-size stays 10px */
+  }
+  .grid {
+    gap: 24px;
+  }
+  .card {
+    width: 170px;
+  }
+  .name {
+    font-size: 13px;
+  }
+  .price {
+    font-size: 12px;
+  }
+  .addToCart {
+    font-size: 10px;
+    padding: 12px 0;
+  }
+  .empty {
+    font-size: 13px;
+  }
+}

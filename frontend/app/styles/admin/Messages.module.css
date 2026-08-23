@@ -1,0 +1,301 @@
+/* ── Date filters ── */
+.dateFilters {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.dateFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.dateFilterBtn {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888;
+  background: #fdf6f3;
+  border: 1px solid #e0c8be;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.dateFilterBtn:hover { color: #DB663B; border-color: #DB663B; }
+
+.dateFilterBtnActive {
+  background: #DB663B;
+  color: #fff;
+  border-color: #DB663B;
+}
+
+.dateFilterClear {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #A74419;
+  background: none;
+  border: 1px solid #A74419;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
+.dateFilterClear:hover { background: #fbe9e0; }
+
+/* ── Calendar ── */
+.calContainer {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calWrap {
+  background: #fff;
+  border: 1px solid #e0c8be;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  padding: 16px;
+  width: 252px;
+  user-select: none;
+}
+
+.calHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.calNav {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: #aaa;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: color 0.15s;
+}
+.calNav:hover { color: #DB663B; }
+
+.calMonthLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.calDow {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #bbb;
+  text-align: center;
+  padding: 4px 0 6px;
+}
+
+.calEmpty { aspect-ratio: 1; }
+
+.calDay {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #333;
+  background: none;
+  border: none;
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.1s, color 0.1s;
+  padding: 0;
+}
+.calDay:hover { background: #fbe9e0; color: #DB663B; }
+
+.calDayToday    { font-weight: 700; color: #A74419; }
+.calDaySelected { background: #DB663B !important; color: #fff !important; font-weight: 600; }
+.calDayInRange  { background: #fbe9e0; color: #DB663B; border-radius: 0; }
+
+.calLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Title row ── */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unreadBadge {
+  display: inline-block;
+  background: #DB663B;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 24px 28px;
+  border-left: 3px solid transparent;
+}
+
+.cardUnread {
+  border-left-color: #DB663B;
+}
+
+.cardRead {
+  border-left-color: #e0e0e0;
+  opacity: 0.7;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.date {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #888888;
+}
+
+.meta {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #888888;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.text {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #333333;
+  line-height: 1.65;
+  margin: 0 0 16px;
+  white-space: pre-wrap;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+}
+
+.markReadBtn {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #DB663B;
+  background: none;
+  border: 1px solid #DB663B;
+  padding: 4px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.markReadBtn:hover {
+  background: #fbe9e0;
+}
+
+.readLabel {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aaaaaa;
+}
+
+@media (max-width: 768px) {
+  .card { padding: 18px 20px; }
+  .name { font-size: 12px; }
+  .dateFilterBtn { padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  .card { padding: 14px 14px; }
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    margin-bottom: 6px;
+  }
+  .name { font-size: 12px; }
+  .date { font-size: 9px; }
+  .meta {
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+  .text { font-size: 11px; margin-bottom: 12px; }
+  .dateFilterBtn {
+    padding: 5px 8px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+  .dateFilterClear {
+    padding: 5px 10px;
+    font-size: 9px;
+  }
+  .list { gap: 8px; }
+}
+
+@media (max-width: 360px) {
+  .card { padding: 12px; }
+  .name { font-size: 11px; }
+  .text { font-size: 10px; }
+}

@@ -1,0 +1,365 @@
+.section {
+  background: #FFFFFF;
+  padding-bottom: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Large image straddling hero / born boundary */
+.imageWrap {
+  position: relative;
+  width: 43%;
+  height: 830px;
+  margin-top: -350px; /* pulls 280px (half of 560px hero) up into hero section */
+  z-index: 2;
+}
+
+.image {
+  object-fit: cover;
+  object-position: center;
+}
+
+
+/* Text sits in the lower portion of the image (the born-section half) */
+.textContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 420px 80px 60px; /* top padding clears the hero-overlap zone */
+}
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #DB663B;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+  text-align: center;
+  max-width: 320px;
+}
+
+.para {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: #000000;
+  margin: 0 0 20px 0;
+  max-width: 400px;
+  text-align: center;
+}
+
+.para:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Crafted With Intention section ── */
+.craftedSection {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 40px 40px;
+}
+
+.craftedHeading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #DB663B;
+  margin: 0 0 0px 0;
+  max-width: 350px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.collageWrap {
+  position: relative;
+  width: 560px;
+  height: 340px;
+}
+
+.collageImg {
+  object-fit: contain;
+  object-position: top center;
+}
+
+.craftedText {
+  max-width: 560px;
+  text-align: center;
+  margin-top: -20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.craftedPara {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: #000000;
+  max-width: 410px;
+  margin: 0 0 24px 0;
+}
+
+.craftedParaBold {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #000000;
+  max-width: 410px;
+  margin: 0;
+}
+
+
+
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   .para, .craftedPara, .craftedParaBold remain 10px ----- */
+@media (max-width: 1024px) {
+  .imageWrap {
+    width: 55%;
+    height: 750px;
+    margin-top: -300px;
+  }
+  .textContent {
+    padding: 380px 60px 50px;
+  }
+  .heading {
+    font-size: 18px;
+    max-width: 300px;
+  }
+  .collageWrap {
+    width: 500px;
+    height: 300px;
+  }
+  .craftedSection {
+    padding: 30px 30px 30px;
+  }
+  .craftedHeading {
+    font-size: 18px;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .imageWrap {
+    width: 70%;
+    height: 690px;
+    margin-top: -250px;
+  }
+  .textContent {
+    padding: 350px 40px 40px;
+  }
+  .heading {
+    font-size: 18px;
+    max-width: 280px;
+    margin: 0 0 16px 0;
+  }
+  .para {
+    max-width: 340px;
+    margin-bottom: 10px;
+    /* font-size stays 10px */
+  }
+  .collageWrap {
+    width: 400px;
+    height: 260px;
+  }
+  .craftedSection {
+    padding: 30px 24px 24px;
+  }
+  .craftedHeading {
+    font-size: 16px;
+    max-width: 300px;
+  }
+  .craftedPara {
+    max-width: 360px;
+    /* font-size stays 10px */
+  }
+  .craftedParaBold {
+    max-width: 380px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 600px) {
+  .imageWrap {
+    width: 85%;
+    height: 680px;
+    margin-top: -200px;
+  }
+  .textContent {
+    padding: 350px 30px 30px;
+  }
+  .heading {
+    font-size: 15px;
+    max-width: 220px;
+    margin: 0 0 14px 0;
+  }
+  .para {
+    max-width: 330px;
+    margin-bottom: 10;
+    /* font-size stays 10px */
+  }
+  .collageWrap {
+    width: 340px;
+    height: 220px;
+  }
+  .craftedSection {
+    padding: 10px 20px 20px;
+  }
+  .craftedHeading {
+    font-size: 15px;
+    max-width: 280px;
+  }
+  .craftedPara {
+    max-width: 320px;
+    /* font-size stays 10px */
+  }
+  .craftedParaBold {
+    max-width: 320px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 480px) {
+  .imageWrap {
+    width: 92%;
+    height: 650px;
+    margin-top: -160px;
+  }
+  .textContent {
+    padding: 330px 20px 24px;
+  }
+  .heading {
+    font-size: 14px;
+    max-width: 250px;
+    margin: 0 0 12px 0;
+  }
+  .para {
+    max-width: 330px;
+    margin-bottom: 7px;
+    line-height: 1.3;
+    /* font-size stays 10px */
+  }
+  .collageWrap {
+    width: 280px;
+    height: 180px;
+  }
+  .craftedSection {
+    padding: 10px 16px 16px;
+  }
+  .craftedHeading {
+    font-size: 14px;
+    max-width: 250px;
+  }
+  .craftedText {
+    margin-top: -12px;
+  }
+  .craftedPara {
+    max-width: 280px;
+    /* font-size stays 10px */
+  }
+  .craftedParaBold {
+    max-width: 280px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 360px) {
+  .imageWrap {
+    width: 96%;
+    height: 700px;
+    margin-top: -160px;
+  }
+  .textContent {
+    padding: 360px 16px 20px;
+  }
+  .heading {
+    font-size: 13px;
+    max-width: 200px;
+    margin: 0 0 5px 0;
+  }
+  .para {
+    max-width: 300px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    /* font-size stays 10px */
+  }
+  .collageWrap {
+    width: 240px;
+    height: 160px;
+  }
+  .craftedSection {
+    padding: 0px 12px 12px;
+  }
+  .craftedHeading {
+    font-size: 13px;
+    max-width: 220px;
+  }
+  .craftedText {
+    margin-top: -8px;
+  }
+  .craftedPara {
+    max-width: 250px;
+    /* font-size stays 10px */
+  }
+  .craftedParaBold {
+    max-width: 240px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (min-width: 1400px) {
+  .imageWrap {
+    width: 50%;
+    height: 900px;
+    margin-top: -400px;
+  }
+  .textContent {
+    padding: 480px 100px 80px;
+  }
+  .heading {
+    font-size: 24px;
+    max-width: 450px;
+    margin: 0 0 24px 0;
+  }
+  .para {
+    max-width: 480px;
+    /* font-size stays 10px */
+  }
+  .collageWrap {
+    width: 640px;
+    height: 380px;
+  }
+  .craftedSection {
+    padding: 40px 48px 48px;
+  }
+  .craftedHeading {
+    font-size: 24px;
+    max-width: 400px;
+  }
+  .craftedPara {
+    max-width: 460px;
+    /* font-size stays 10px */
+  }
+  .craftedParaBold {
+    max-width: 460px;
+    /* font-size stays 10px */
+  }
+}

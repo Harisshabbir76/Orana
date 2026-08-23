@@ -1,0 +1,404 @@
+/* ── Page shell ─────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5ede9;
+}
+
+/* ── Top bar ────────────────────────────────────────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: #1C0E08;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.topTitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #DB663B;
+}
+
+.topHint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.4px;
+  flex: 1;
+}
+
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.savedMsg {
+  font-size: 12px;
+  color: #6ee56e;
+  font-weight: 600;
+}
+
+.saveBtn {
+  padding: 9px 22px;
+  background: #DB663B;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveBtn:hover:not(:disabled) { background: #A74419; }
+.saveBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Body ───────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  position: relative;
+}
+
+/* ── Preview ────────────────────────────────────────────── */
+.preview {
+  transition: margin-right 0.3s;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* ── Properties panel ───────────────────────────────────── */
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.panelOpen {
+  transform: translateX(0);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f0e8e4;
+  background: #FFF5F2;
+  flex-shrink: 0;
+}
+
+.panelLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1C0E08;
+  line-height: 1.3;
+}
+
+.panelId {
+  font-size: 10px;
+  color: #A74419;
+  letter-spacing: 0.5px;
+  margin-top: 3px;
+  font-family: monospace;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.closeBtn:hover { color: #1C0E08; }
+
+.panelBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0 40px;
+}
+
+/* ── Panel sections ─────────────────────────────────────── */
+.sec {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3ede9;
+}
+
+.secTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #A74419;
+  margin-bottom: 12px;
+}
+
+/* ── Fields ─────────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.fieldLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.row4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* ── Inputs ─────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #1a1a1a;
+  outline: none;
+  background: #fafafa;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: #DB663B; background: #fff; }
+
+.numInput {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  background: #fafafa;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.numInput:focus { border-color: #DB663B; background: #fff; }
+
+.textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #1a1a1a;
+  outline: none;
+  background: #fafafa;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.textarea:focus { border-color: #DB663B; background: #fff; }
+
+.select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  background: #fafafa;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.select:focus { border-color: #DB663B; }
+
+.inputWithUnit {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  background: #fafafa;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.inputWithUnit:focus-within { border-color: #DB663B; background: #fff; }
+.inputWithUnit .numInput {
+  border: none;
+  background: transparent;
+  flex: 1;
+  border-radius: 0;
+}
+.inputWithUnit .numInput:focus { background: transparent; }
+
+.unit {
+  font-size: 10px;
+  color: #999;
+  padding: 0 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* ── Toggle B/I/U ───────────────────────────────────────── */
+.toggleGroup {
+  display: flex;
+  gap: 4px;
+}
+
+.toggle {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  background: #fafafa;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: #555;
+}
+.toggle:hover { border-color: #DB663B; color: #DB663B; }
+.toggleOn { background: #DB663B; border-color: #DB663B; color: #fff !important; }
+
+/* ── Color picker ───────────────────────────────────────── */
+.colorPicker {
+  width: 100%;
+  height: 34px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+  background: #fafafa;
+}
+
+/* ── Image preview ──────────────────────────────────────── */
+.imgPreview {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #e5dbd8;
+}
+
+/* ── Upload button ──────────────────────────────────────── */
+.uploadBtn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 9px;
+  border: 1.5px dashed #DB663B;
+  border-radius: 6px;
+  background: transparent;
+  color: #DB663B;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.uploadBtn:hover:not(:disabled) { background: #fff5f2; }
+.uploadBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Panel footer (sticky save) ─────────────────────────── */
+.panelFooter {
+  flex-shrink: 0;
+  padding: 14px 20px;
+  border-top: 1px solid #f0e8e4;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panelSaveBtn {
+  width: 100%;
+  padding: 12px;
+  background: #DB663B;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.panelSaveBtn:hover:not(:disabled) { background: #A74419; }
+.panelSaveBtn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+/* ── Language tabs ──────────────────────────────────────── */
+.langTabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.langTab {
+  padding: 4px 14px;
+  border: 1.5px solid #e5dbd8;
+  border-radius: 4px;
+  background: #fafafa;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #999;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.langTab:hover { border-color: #DB663B; color: #DB663B; }
+
+.langTabActive {
+  border-color: #DB663B;
+  background: #DB663B;
+  color: #fff !important;
+}
+
+/* ── Reset button ───────────────────────────────────────── */
+.resetBtn {
+  width: 100%;
+  padding: 9px;
+  background: transparent;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #888;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.resetBtn:hover { border-color: #c62828; color: #c62828; }

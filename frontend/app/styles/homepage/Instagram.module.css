@@ -1,0 +1,164 @@
+.section {
+  width: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 20px;
+}
+
+
+.heading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #DB663B;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+/* 4-column × 2-row image grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 110px);
+  grid-template-rows: repeat(2, 110px);
+  gap: 0px;
+  margin-bottom: 40px;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.imageWrap:hover .image {
+  transform: scale(1.04);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   all text sizes remain fixed ----- */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(2, 100px);
+  }
+  .imageWrap {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 0 0 16px;
+  }
+  .heading {
+    font-size: 17px;
+    margin: 0 0 16px 0;
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
+    width: 100%;
+    max-width: 370px;
+    gap: 4px;
+    margin-bottom: 32px;
+  }
+  .imageWrap {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    max-width: 300px;
+    gap: 3px;
+    margin-bottom: 28px;
+  }
+  .heading {
+    font-size: 16px;
+    margin: 0 0 14px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 0 0 12px;
+  }
+  .heading {
+    font-size: 15px;
+    max-width: 300px;
+    margin: 0 0 12px 0;
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, auto);
+    max-width: 320px;
+    gap: 2px;
+    margin-bottom: 24px;
+  }
+  .imageWrap {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 360px) {
+  .section {
+    padding: 0 0 8px;
+  }
+  .heading {
+    font-size: 14px;
+    max-width: 250px;
+    margin: 0 0 10px 0;
+  }
+  .grid {
+    max-width: 230px;
+    gap: 2px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .section {
+    padding: 0 0 24px;
+  }
+  .heading {
+    font-size: 24px;
+    margin: 0 0 24px 0;
+  }
+  .grid {
+    grid-template-columns: repeat(4, 140px);
+    grid-template-rows: repeat(2, 140px);
+    gap: 0px;
+    margin-bottom: 48px;
+  }
+  .imageWrap {
+    width: 130px;
+    height: 130px;
+  }
+}

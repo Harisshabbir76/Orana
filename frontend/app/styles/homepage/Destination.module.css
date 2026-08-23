@@ -1,0 +1,348 @@
+.section {
+  width: 100%;
+  background: #ffffff;
+  padding: 0 0 0;
+}
+
+/* ── Top banner ── */
+.banner {
+  margin: 0 36px;
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+}
+
+.bannerImage {
+  object-fit: cover;
+  object-position: center top;
+}
+
+.bannerLeft {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 48px 48px 80px;
+  width: 52%;
+  z-index: 1;
+  text-align: left;
+  direction: ltr;
+}
+
+.bannerHeading {
+  font-family: var(--font-heading);
+  font-size: 25px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #87310E;
+  margin: 0 0 10px 0;
+}
+
+.bannerText {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: #87310E;
+  margin: 0 0 20px 0;
+  max-width: 450px;
+}
+
+.bannerBtn {
+  display: inline-block;
+  align-self: flex-start;
+  margin-inline-start: 0;
+  padding: 3px 10px;
+  background: #A74419;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.bannerBtn:hover {
+  background: #8f3814;
+}
+
+/* ── Bottom discover section ── */
+.discover {
+  padding: 56px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #ffffff;
+}
+
+.discoverHeading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: #DB663B;
+  margin: 0 0 2px 0;
+}
+
+.discoverText {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  color: #000000;
+  margin: 0 0 20px 0;
+}
+
+.discoverBtn {
+  display: inline-block;
+  padding: 3px 18px;
+  background: #A74419;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.discoverBtn:hover {
+  background: #8f3814;
+}
+
+.divider {
+  width: 1px;
+  height: 60px;
+  background-color: #c8a898;
+}
+
+
+
+
+
+
+
+
+
+
+/* ----- responsiveness: only layout & spacing adapt, 
+   .bannerText, .bannerBtn, .discoverText, .discoverBtn remain fixed sizes ----- */
+@media (max-width: 1024px) {
+  .banner {
+    margin: 0 24px;
+    height: 250px;
+  }
+  .bannerLeft {
+    padding: 32px 32px 32px 60px;
+    width: 56%;
+  }
+  .bannerHeading {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner {
+    margin: 0 16px;
+    height: 220px;
+  }
+  .bannerLeft {
+    padding: 24px 24px 24px 40px;
+    width: 60%;
+  }
+  .bannerHeading {
+    font-size: 18px;
+    margin: 0 0 8px 0;
+  }
+  .bannerText {
+    max-width: 350px;
+    /* font-size stays 10px */
+  }
+  .bannerBtn {
+    padding: 2px 8px;
+    /* font-size stays 10px */
+  }
+  .discover {
+    padding: 40px 20px 16px;
+  }
+  .discoverHeading {
+    font-size: 18px;
+  }
+  .discoverText {
+    /* font-size stays 10px */
+  }
+  .discoverBtn {
+    padding: 2px 16px;
+    /* font-size stays 10px */
+  }
+  .divider {
+    height: 50px;
+  }
+}
+
+@media (max-width: 600px) {
+  .banner {
+    margin: 0 12px;
+    height: 200px;
+  }
+  .bannerLeft {
+    padding: 20px 16px 20px 24px;
+    width: 65%;
+  }
+  .bannerHeading {
+    font-size: 16px;
+    margin: 0 0 6px 0;
+  }
+  .bannerText {
+    max-width: 280px;
+    line-height: 1.3;
+    /* font-size stays 10px */
+  }
+  .bannerBtn {
+    padding: 2px 8px;
+    letter-spacing: 0.8px;
+    /* font-size stays 10px */
+  }
+}
+
+@media (max-width: 480px) {
+  .banner {
+    margin: 0 8px;
+    height: 200px;
+  }
+  .bannerLeft {
+    padding: 16px 12px 16px 18px;
+    width: 65%;
+  }
+  .bannerHeading {
+    font-size: 14px;
+    margin: 0 0 6px 0;
+  }
+  .bannerText {
+    max-width: 200px;
+    /* font-size stays 10px */
+  }
+  .bannerBtn {
+    padding: 2px 8px;
+    letter-spacing: 0.6px;
+    /* font-size stays 10px */
+  }
+  .discover {
+    padding: 32px 16px 12px;
+  }
+  .discoverHeading {
+    font-size: 14px;
+  }
+  .discoverText {
+    /* font-size stays 10px */
+    max-width: 300px;
+  }
+  .discoverBtn {
+    padding: 2px 14px;
+    /* font-size stays 10px */
+  }
+  .divider {
+    height: 40px;
+  }
+}
+
+@media (max-width: 360px) {
+  .banner {
+    margin: 0 4px;
+    height: 180px;
+    overflow: visible;
+  }
+  .bannerImage {
+    object-position: right top;
+  }
+  .bannerLeft {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: 100%;
+    background: #ffffff;
+    padding: 14px 16px 16px;
+    border-top: 1.5px solid #f0ddd5;
+  }
+  .bannerHeading {
+    font-size: 14px;
+    margin: 0 0 6px 0;
+  }
+  .bannerText {
+    max-width: 100%;
+    line-height: 1.3;
+    /* font-size stays 10px */
+  }
+  .bannerBtn {
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+    /* font-size stays 10px */
+  }
+  .discover {
+    padding: 40px 12px 8px;
+    margin-top: 100px;
+  }
+  .discoverHeading {
+    font-size: 14px;
+    max-width: 200px;
+  }
+  .discoverText {
+    /* font-size stays 10px */
+    max-width: 250px;
+  }
+  .discoverBtn {
+    padding: 2px 12px;
+    /* font-size stays 10px */
+  }
+  .divider {
+    height: 30px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .banner {
+    margin: 0 48px;
+    height: 320px;
+  }
+  .bannerLeft {
+    padding: 48px 56px 48px 100px;
+    width: 48%;
+  }
+  .bannerHeading {
+    font-size: 30px;
+    margin: 0 0 12px 0;
+  }
+  .bannerText {
+    max-width: 520px;
+    /* font-size stays 10px */
+  }
+  .bannerBtn {
+    padding: 4px 12px;
+    /* font-size stays 10px */
+  }
+  .discover {
+    padding: 64px 32px 24px;
+  }
+  .discoverHeading {
+    font-size: 24px;
+  }
+  .discoverText {
+    /* font-size stays 10px */
+  }
+  .discoverBtn {
+    padding: 4px 20px;
+    /* font-size stays 10px */
+  }
+  .divider {
+    height: 70px;
+  }
+}
