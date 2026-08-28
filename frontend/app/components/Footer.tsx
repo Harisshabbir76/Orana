@@ -34,7 +34,7 @@ export default function Footer() {
         <div className={styles.divider} />
 
         <div className={styles.contactRow}>
-          <span className={styles.contactText}>{t.footer.contactUs}</span>
+          
           <a
             href={process.env.NEXT_PUBLIC_INSTAGRAM_URL}
             target="_blank"

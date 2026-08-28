@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function ProfilePage() {
-  const { user, token, login, logout } = useAuth();
+  const { user, token, ready, login, logout } = useAuth();
   const { addToCart, openCart } = useStore();
   const router = useRouter();
   const t = useTranslation();
@@ -56,11 +56,12 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
-  // Redirect if not logged in
+  // Redirect if not logged in — wait for localStorage to rehydrate first
   useEffect(() => {
+    if (!ready) return;
     if (!user || !token) { router.push("/signup"); return; }
     setInfo({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone ?? "" });
-  }, [user, token, router]);
+  }, [ready, user, token, router]);
 
   // Load orders when tab switches to orders
   useEffect(() => {
@@ -148,7 +149,7 @@ export default function ProfilePage() {
     openCart();
   }
 
-  if (!user) return null;
+  if (!ready || !user) return null;
 
   const initials = `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
 

@@ -380,24 +380,24 @@ app.post('/api/auth/reset-password', requireDb, async (req, res) => {
 // ── Cart & Wishlist sync ─────────────────────────────────
 
 app.get('/api/cart', requireDb, requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.id).select('cart');
+  const user = await User.findById(req.userId).select('cart');
   res.json({ cart: user?.cart ?? [] });
 });
 
 app.put('/api/cart', requireDb, requireAuth, async (req, res) => {
   const { items } = req.body;
-  await User.findByIdAndUpdate(req.user.id, { cart: items ?? [] });
+  await User.findByIdAndUpdate(req.userId, { cart: items ?? [] });
   res.json({ ok: true });
 });
 
 app.get('/api/wishlist', requireDb, requireAuth, async (req, res) => {
-  const user = await User.findById(req.user.id).select('wishlist');
+  const user = await User.findById(req.userId).select('wishlist');
   res.json({ wishlist: user?.wishlist ?? [] });
 });
 
 app.put('/api/wishlist', requireDb, requireAuth, async (req, res) => {
   const { items } = req.body;
-  await User.findByIdAndUpdate(req.user.id, { wishlist: items ?? [] });
+  await User.findByIdAndUpdate(req.userId, { wishlist: items ?? [] });
   res.json({ ok: true });
 });
 

@@ -22,6 +22,7 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
+  ready: boolean;
   login: (token: string, user: AuthUser) => void;
   logout: () => void;
 }
@@ -29,6 +30,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
+  ready: false,
   login: () => {},
   logout: () => {},
 });
@@ -36,6 +38,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("orana_auth");
@@ -52,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("orana_auth");
       }
     }
+    setReady(true);
   }, []);
 
   function login(t: string, u: AuthUser) {
@@ -67,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, ready, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

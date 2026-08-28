@@ -29,6 +29,19 @@ export default function CheckoutPage() {
   const [loading, setLoading]           = useState(false);
   const [shipping, setShipping]         = useState<number | null>(null);
 
+  // Re-fill form when user loads after hard refresh
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        firstName: f.firstName || user.firstName,
+        lastName:  f.lastName  || user.lastName,
+        email:     f.email     || user.email,
+        phone:     f.phone     || (user.phone ?? ""),
+      }));
+    }
+  }, [user]);
+
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shipping`)
       .then((r) => r.json())
