@@ -249,7 +249,7 @@ export default function ShopPage({ initialProducts = [] }: Props) {
 
       {/* Product grid */}
       {displayed.length === 0 ? (
-        <p className={styles.empty}>{t.collection.empty}</p>
+        <p className={styles.empty}>{t.shop.noProducts}</p>
       ) : (
         <div className={`${styles.grid} ${styles[view]}`}>
           {displayed.map((product) => {

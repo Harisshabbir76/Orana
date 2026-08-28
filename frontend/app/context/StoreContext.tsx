@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import { useAuth } from "./AuthContext";
 
 export interface StoreProduct {
   _id: string;
@@ -41,12 +42,16 @@ const StoreContext = createContext<StoreCtx>({
 });
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const { token } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [wishlistItems, setWishlistItems] = useState<StoreProduct[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const skipSave = useRef(true);
   const skipWishlistSave = useRef(true);
+  const syncDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncWishlistDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevToken = useRef<string | null>(null);
 
   // Rehydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
@@ -58,17 +63,70 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, []);
 
+  // On login: fetch server cart/wishlist and merge with local
+  useEffect(() => {
+    if (token && !prevToken.current) {
+      const headers = { Authorization: `Bearer ${token}` };
+      Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, { headers }).then((r) => r.json()).catch(() => ({ cart: [] })),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, { headers }).then((r) => r.json()).catch(() => ({ wishlist: [] })),
+      ]).then(([cartData, wishlistData]) => {
+        const serverCart: CartItem[] = cartData.cart ?? [];
+        const serverWishlist: StoreProduct[] = cartData.wishlist ?? wishlistData.wishlist ?? [];
+
+        setCartItems((local) => {
+          const merged = [...local];
+          serverCart.forEach((si) => {
+            const idx = merged.findIndex((li) => li.product._id === si.product._id);
+            if (idx === -1) merged.push(si);
+            else merged[idx] = { ...merged[idx], quantity: merged[idx].quantity + si.quantity };
+          });
+          return merged;
+        });
+
+        setWishlistItems((local) => {
+          const merged = [...local];
+          serverWishlist.forEach((si) => {
+            if (!merged.find((li) => li._id === si._id)) merged.push(si);
+          });
+          return merged;
+        });
+      });
+    }
+    prevToken.current = token;
+  }, [token]);
+
   // Persist cart — skip the very first run (cartItems is still [] then)
   useEffect(() => {
     if (skipSave.current) { skipSave.current = false; return; }
     localStorage.setItem("orana_cart", JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (token) {
+      if (syncDebounce.current) clearTimeout(syncDebounce.current);
+      syncDebounce.current = setTimeout(() => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ items: cartItems }),
+        }).catch(() => {});
+      }, 500);
+    }
+  }, [cartItems, token]);
 
   // Persist wishlist — skip the very first run
   useEffect(() => {
     if (skipWishlistSave.current) { skipWishlistSave.current = false; return; }
     localStorage.setItem("orana_wishlist", JSON.stringify(wishlistItems));
-  }, [wishlistItems]);
+    if (token) {
+      if (syncWishlistDebounce.current) clearTimeout(syncWishlistDebounce.current);
+      syncWishlistDebounce.current = setTimeout(() => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ items: wishlistItems }),
+        }).catch(() => {});
+      }, 500);
+    }
+  }, [wishlistItems, token]);
 
   const addToCart = (p: StoreProduct) => {
     setCartItems(prev => {

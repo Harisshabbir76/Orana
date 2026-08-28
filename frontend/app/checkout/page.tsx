@@ -26,18 +26,18 @@ export default function CheckoutPage() {
     address: "", city: "", country: "UAE",
   });
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">("cod");
-  const [loading, setLoading]   = useState(false);
-  const [shipping, setShipping] = useState(0);
+  const [loading, setLoading]           = useState(false);
+  const [shipping, setShipping]         = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/shipping`)
       .then((r) => r.json())
       .then((data) => setShipping(data.price ?? 0))
-      .catch(() => {});
+      .catch(() => setShipping(0));
   }, []);
 
   const subtotal = cartItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
-  const total = subtotal + shipping;
+  const total = subtotal + (shipping ?? 0);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,6 +46,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (paymentMethod === "card") return;
+    if (shipping === null) return;
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
@@ -247,7 +248,9 @@ export default function CheckoutPage() {
             </div>
             <div className={styles.summaryRow}>
               <span>{c.shipping}</span>
-              <span>{shipping === 0 ? c.free : formatPrice(shipping)}</span>
+              <span>
+                {shipping === null ? "..." : shipping === 0 ? c.free : formatPrice(shipping)}
+              </span>
             </div>
             <div className={styles.summaryDivider} />
             <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>

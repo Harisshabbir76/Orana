@@ -155,6 +155,8 @@ const userSchema = new mongoose.Schema(
     phone:        { type: String, trim: true, default: '' },
     password:     { type: String, required: true },
     tokenVersion: { type: Number, default: 0 },
+    cart:         { type: Array, default: [] },
+    wishlist:     { type: Array, default: [] },
   },
   { timestamps: true }
 );
@@ -373,6 +375,30 @@ app.post('/api/auth/reset-password', requireDb, async (req, res) => {
     otpStore.delete(email.toLowerCase());
     res.json({ message: 'Password reset successfully' });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── Cart & Wishlist sync ─────────────────────────────────
+
+app.get('/api/cart', requireDb, requireAuth, async (req, res) => {
+  const user = await User.findById(req.user.id).select('cart');
+  res.json({ cart: user?.cart ?? [] });
+});
+
+app.put('/api/cart', requireDb, requireAuth, async (req, res) => {
+  const { items } = req.body;
+  await User.findByIdAndUpdate(req.user.id, { cart: items ?? [] });
+  res.json({ ok: true });
+});
+
+app.get('/api/wishlist', requireDb, requireAuth, async (req, res) => {
+  const user = await User.findById(req.user.id).select('wishlist');
+  res.json({ wishlist: user?.wishlist ?? [] });
+});
+
+app.put('/api/wishlist', requireDb, requireAuth, async (req, res) => {
+  const { items } = req.body;
+  await User.findByIdAndUpdate(req.user.id, { wishlist: items ?? [] });
+  res.json({ ok: true });
 });
 
 // ── Routes ──────────────────────────────────────────────

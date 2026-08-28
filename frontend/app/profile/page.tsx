@@ -137,8 +137,9 @@ export default function ProfilePage() {
 
   function orderAgain(order: Order) {
     order.items.forEach((item) => {
+      if (!item.productId) return;
       addToCart({
-        _id: item.productId || item.name,
+        _id: item.productId,
         name: item.name,
         price: item.price,
         images: item.image ? [{ url: item.image, publicId: "" }] : [],

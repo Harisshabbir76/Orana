@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useStore } from "../../context/StoreContext";
 import { useTranslation } from "../../hooks/useTranslation";
@@ -37,6 +38,7 @@ export default function ProductDetail({ product }: Props) {
 
   const { formatPrice, language } = useCurrency();
   const { addToCart, openCart } = useStore();
+  const router = useRouter();
   const t = useTranslation();
   const pd = t.productDetail;
   const isAr = language === "Arabic";
@@ -58,6 +60,11 @@ export default function ProductDetail({ product }: Props) {
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) addToCart(product);
     openCart();
+  };
+
+  const handleBuyNow = () => {
+    for (let i = 0; i < qty; i++) addToCart(product);
+    router.push("/checkout");
   };
 
   return (
@@ -210,7 +217,7 @@ export default function ProductDetail({ product }: Props) {
                   {t.collection.addToCart}
                 </button>
               </div>
-              <button className={styles.buyNow} onClick={handleAddToCart}>
+              <button className={styles.buyNow} onClick={handleBuyNow}>
                 {pd.buyNow}
               </button>
             </div>

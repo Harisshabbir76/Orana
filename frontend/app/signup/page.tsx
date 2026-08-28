@@ -124,10 +124,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email: forgotEmail }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to send OTP"); return; }
+      if (!res.ok) { setError(data.error || s.failedSendOtp); return; }
       setForgotStep("otp");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(s.genericError);
     } finally {
       setLoading(false);
     }
@@ -144,10 +144,10 @@ export default function LoginPage() {
         body: JSON.stringify({ email: forgotEmail, otp: forgotOtp }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Invalid OTP"); return; }
+      if (!res.ok) { setError(data.error || s.invalidOtp); return; }
       setForgotStep("reset");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(s.genericError);
     } finally {
       setLoading(false);
     }
@@ -156,7 +156,7 @@ export default function LoginPage() {
   async function handleForgotReset(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (forgotPassword !== forgotConfirm) { setError("Passwords do not match"); return; }
+    if (forgotPassword !== forgotConfirm) { setError(s.passwordMismatch); return; }
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/reset-password`, {
@@ -165,12 +165,12 @@ export default function LoginPage() {
         body: JSON.stringify({ email: forgotEmail, otp: forgotOtp, newPassword: forgotPassword }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to reset password"); return; }
-      setForgotSuccess("Password reset successfully! You can now sign in.");
+      if (!res.ok) { setError(data.error || s.failedResetPassword); return; }
+      setForgotSuccess(s.forgotSuccess);
       setForgotStep(null);
       setTab("login");
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(s.genericError);
     } finally {
       setLoading(false);
     }
@@ -188,8 +188,8 @@ export default function LoginPage() {
 
             {forgotStep === "email" && (
               <form className={styles.form} onSubmit={handleForgotEmail}>
-                <p className={styles.forgotTitle}>Forgot Password</p>
-                <p className={styles.stepNote}>Enter your registered email to receive a one-time code.</p>
+                <p className={styles.forgotTitle}>{s.forgotTitle}</p>
+                <p className={styles.stepNote}>{s.forgotStepNoteEmail}</p>
                 <div className={styles.field}>
                   <label className={styles.label}>{s.email}</label>
                   <input
@@ -202,20 +202,20 @@ export default function LoginPage() {
                   />
                 </div>
                 <button className={styles.submitBtn} type="submit" disabled={loading}>
-                  {loading ? "Sending..." : "Send OTP"}
+                  {loading ? s.sending : s.sendOtp}
                 </button>
                 <button type="button" className={styles.backBtn} onClick={exitForgot}>
-                  ← Back to Sign In
+                  {s.backToSignIn}
                 </button>
               </form>
             )}
 
             {forgotStep === "otp" && (
               <form className={styles.form} onSubmit={handleForgotOtp}>
-                <p className={styles.forgotTitle}>Enter OTP</p>
-                <p className={styles.stepNote}>A 6-digit code was sent to {forgotEmail}</p>
+                <p className={styles.forgotTitle}>{s.otpTitle}</p>
+                <p className={styles.stepNote}>{s.forgotStepNoteOtp} {forgotEmail}</p>
                 <div className={styles.field}>
-                  <label className={styles.label}>One-Time Code</label>
+                  <label className={styles.label}>{s.oneTimeCode}</label>
                   <input
                     className={`${styles.input} ${styles.otpInput}`}
                     type="text"
@@ -227,19 +227,19 @@ export default function LoginPage() {
                   />
                 </div>
                 <button className={styles.submitBtn} type="submit" disabled={loading}>
-                  {loading ? "Verifying..." : "Verify Code"}
+                  {loading ? s.verifying : s.verifyCode}
                 </button>
                 <button type="button" className={styles.backBtn} onClick={() => { setForgotStep("email"); setError(""); }}>
-                  ← Back
+                  {s.back}
                 </button>
               </form>
             )}
 
             {forgotStep === "reset" && (
               <form className={styles.form} onSubmit={handleForgotReset}>
-                <p className={styles.forgotTitle}>New Password</p>
+                <p className={styles.forgotTitle}>{s.newPasswordTitle}</p>
                 <div className={styles.field}>
-                  <label className={styles.label}>New Password</label>
+                  <label className={styles.label}>{s.newPassword}</label>
                   <div className={styles.passwordWrap}>
                     <input
                       className={styles.input}
@@ -255,7 +255,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div className={styles.field}>
-                  <label className={styles.label}>Confirm Password</label>
+                  <label className={styles.label}>{s.confirmNewPassword}</label>
                   <div className={styles.passwordWrap}>
                     <input
                       className={styles.input}
@@ -271,10 +271,10 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <button className={styles.submitBtn} type="submit" disabled={loading}>
-                  {loading ? "Resetting..." : "Reset Password"}
+                  {loading ? s.resetting : s.resetPassword}
                 </button>
                 <button type="button" className={styles.backBtn} onClick={() => { setForgotStep("otp"); setError(""); }}>
-                  ← Back
+                  {s.back}
                 </button>
               </form>
             )}
@@ -328,7 +328,7 @@ export default function LoginPage() {
                     </button>
                   </div>
                   <button type="button" className={styles.forgotLink} onClick={enterForgot}>
-                    Forgot password?
+                    {s.forgotPassword}
                   </button>
                 </div>
                 <button className={styles.submitBtn} type="submit" disabled={loading}>

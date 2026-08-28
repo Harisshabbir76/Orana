@@ -106,7 +106,7 @@
 
 @media (max-width: 480px) {
   .section {
-    padding: 0 0 12px;
+    padding: 0 0 20px;
   }
   .heading {
     font-size: 15px;
@@ -129,7 +129,7 @@
 
 @media (max-width: 360px) {
   .section {
-    padding: 0 0 8px;
+    padding: 0 0 28px;
   }
   .heading {
     font-size: 14px;
