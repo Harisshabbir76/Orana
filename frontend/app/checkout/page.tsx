@@ -10,6 +10,8 @@ import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "../hooks/useTranslation";
 import styles from "../styles/checkout/Checkout.module.css";
 
+const VAT_RATE = 0.05; // UAE VAT — 5% of subtotal + shipping
+
 export default function CheckoutPage() {
   const { cartItems, clearCart } = useStore();
   const { currency, formatPrice } = useCurrency();
@@ -49,8 +51,10 @@ export default function CheckoutPage() {
       .catch(() => setShipping(0));
   }, []);
 
-  const subtotal = cartItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
-  const total = subtotal + (shipping ?? 0);
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  const subtotal = round2(cartItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0));
+  const vat = round2((subtotal + (shipping ?? 0)) * VAT_RATE);
+  const total = round2(subtotal + (shipping ?? 0) + vat);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -77,6 +81,7 @@ export default function CheckoutPage() {
           paymentMethod,
           subtotal,
           shipping,
+          vat,
           total,
           currency,
           userId: user?.id ?? null,
@@ -264,6 +269,10 @@ export default function CheckoutPage() {
               <span>
                 {shipping === null ? "..." : shipping === 0 ? c.free : formatPrice(shipping)}
               </span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>{c.vat}</span>
+              <span>{shipping === null ? "..." : formatPrice(vat)}</span>
             </div>
             <div className={styles.summaryDivider} />
             <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>

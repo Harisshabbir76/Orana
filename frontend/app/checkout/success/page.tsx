@@ -22,6 +22,7 @@ interface Order {
   };
   subtotal: number;
   shipping: number;
+  vat?: number;
   total: number;
   paymentMethod: string;
   currency: string;
@@ -29,7 +30,7 @@ interface Order {
 
 function fmtPrice(aed: number, currency: string): string {
   if (currency === "USD") return `$ ${(aed * AED_TO_USD).toFixed(2)}`;
-  return `Dhs. ${aed}`;
+  return `Dhs. ${Number.isInteger(aed) ? aed : aed.toFixed(2)}`;
 }
 
 export default function CheckoutSuccess() {
@@ -88,6 +89,10 @@ export default function CheckoutSuccess() {
                 <div className={styles.orderSummaryRow}>
                   <span>{s.shipping}</span>
                   <span>{order.shipping === 0 ? s.free : fmtPrice(order.shipping, order.currency)}</span>
+                </div>
+                <div className={styles.orderSummaryRow}>
+                  <span>{s.vat}</span>
+                  <span>{fmtPrice(order.vat ?? 0, order.currency)}</span>
                 </div>
               </div>
               <div className={styles.orderTotal}>

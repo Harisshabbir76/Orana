@@ -52,7 +52,7 @@ export function CurrencyProvider({ children, initialLanguage = "English", initia
     if (currency === "USD") {
       return `$ ${(aedPrice * AED_TO_USD).toFixed(2)}`;
     }
-    return `Dhs. ${aedPrice}`;
+    return `Dhs. ${Number.isInteger(aedPrice) ? aedPrice : aedPrice.toFixed(2)}`;
   };
 
   return (

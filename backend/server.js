@@ -601,6 +601,7 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: { type: String, enum: ['cod', 'card'], default: 'cod' },
     subtotal: Number,
     shipping: { type: Number, default: 0 },
+    vat:      { type: Number, default: 0 },
     total:    Number,
     status:   { type: String, enum: ['pending', 'confirmed', 'cancelled', 'completed'], default: 'pending' },
   },
@@ -609,6 +610,8 @@ const orderSchema = new mongoose.Schema(
 const Order = mongoose.model('Order', orderSchema);
 
 const COUNTRY_LABELS = { UAE: 'United Arab Emirates' };
+const VAT_RATE = 0.05; // UAE VAT — 5% of subtotal + shipping
+const round2 = (n) => Math.round(n * 100) / 100;
 
 // GET orders for logged-in user — must be registered BEFORE /api/orders/:id
 app.get('/api/orders/mine', requireDb, requireAuth, async (req, res) => {
@@ -621,7 +624,7 @@ app.get('/api/orders/mine', requireDb, requireAuth, async (req, res) => {
 // POST create order
 app.post('/api/orders', requireDb, async (req, res) => {
   try {
-    const { items, customer, paymentMethod, subtotal, shipping, total, userId, currency } = req.body;
+    const { items, customer, paymentMethod, userId, currency } = req.body;
     if (!items?.length || !customer?.email) {
       return res.status(400).json({ error: 'items and customer are required' });
     }
@@ -640,7 +643,13 @@ app.post('/api/orders', requireDb, async (req, res) => {
       }
     }
 
-    const order = await Order.create({ items, customer, paymentMethod, subtotal, shipping, total, userId: userId ?? null, currency: currency ?? 'AED' });
+    // Recompute totals server-side so VAT is always applied consistently
+    const subtotal = round2(items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0));
+    const shipping = round2(Number(req.body.shipping) || 0);
+    const vat      = round2((subtotal + shipping) * VAT_RATE);
+    const total    = round2(subtotal + shipping + vat);
+
+    const order = await Order.create({ items, customer, paymentMethod, subtotal, shipping, vat, total, userId: userId ?? null, currency: currency ?? 'AED' });
 
     // Decrement stock for each item
     for (const item of items) {
@@ -656,7 +665,7 @@ app.post('/api/orders', requireDb, async (req, res) => {
     const savedCurrency = currency ?? 'AED';
     const fmtEmail = (aed) => savedCurrency === 'USD'
       ? `$ ${(aed * AED_TO_USD).toFixed(2)}`
-      : `Dhs. ${aed}`;
+      : `Dhs. ${Number.isInteger(aed) ? aed : aed.toFixed(2)}`;
     const itemsRows = items.map(i =>
       `<tr>
         <td style="padding:8px 12px;border-bottom:1px solid #f5ede8;">${i.name}</td>
@@ -668,19 +677,7 @@ app.post('/api/orders', requireDb, async (req, res) => {
     const countryLabel = COUNTRY_LABELS[customer.country] || customer.country;
     const paymentLabel = paymentMethod === 'cod' ? 'Cash on Delivery' : 'Card';
 
-    sendEmail({
-      to: process.env.BUSINESS_EMAIL,
-      subject: `New Order — ${customer.firstName} ${customer.lastName}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#000;">
-          <div style="background:#A74419;padding:24px 32px;">
-            <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:2px;">ORANA</h1>
-            <p style="color:rgba(255,255,255,0.8);font-size:12px;margin:6px 0 0;">New Order Received</p>
-          </div>
-          <div style="padding:32px;">
-            <p style="font-size:13px;color:#555;margin:0 0 24px;">A new order has been placed. Details below.</p>
-            <p style="font-size:10px;color:#888;margin:0 0 24px;">Order ID: <strong style="color:#A74419;">${order._id}</strong></p>
-
+    const orderDetailsHtml = `
             <h2 style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#A74419;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #A74419;">Items Ordered</h2>
             <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
               <thead>
@@ -700,6 +697,10 @@ app.post('/api/orders', requireDb, async (req, res) => {
               <tr>
                 <td style="padding:6px 12px;font-size:11px;color:#888;">Shipping</td>
                 <td style="padding:6px 12px;font-size:11px;color:#888;text-align:right;">${shipping === 0 ? 'Free' : fmtEmail(shipping)}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 12px;font-size:11px;color:#888;">VAT (5%)</td>
+                <td style="padding:6px 12px;font-size:11px;color:#888;text-align:right;">${fmtEmail(vat)}</td>
               </tr>
               <tr style="border-top:1px solid #f0ddd5;">
                 <td style="padding:10px 12px;font-size:13px;font-weight:700;">Total</td>
@@ -726,9 +727,53 @@ app.post('/api/orders', requireDb, async (req, res) => {
 
             <h2 style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#A74419;margin:0 0 10px;padding-bottom:8px;border-bottom:2px solid #A74419;">Payment</h2>
             <p style="font-size:11px;margin:0 0 32px;">${paymentLabel}</p>
+    `;
+
+    sendEmail({
+      to: process.env.BUSINESS_EMAIL,
+      subject: `New Order — ${customer.firstName} ${customer.lastName}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#000;">
+          <div style="background:#A74419;padding:24px 32px;">
+            <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:2px;">ORANA</h1>
+            <p style="color:rgba(255,255,255,0.8);font-size:12px;margin:6px 0 0;">New Order Received</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:13px;color:#555;margin:0 0 24px;">A new order has been placed. Details below.</p>
+            <p style="font-size:10px;color:#888;margin:0 0 24px;">Order ID: <strong style="color:#A74419;">${order._id}</strong></p>
+
+            ${orderDetailsHtml}
 
             <a href="${process.env.FRONTEND_URL}/orana/admin-panel" style="display:inline-block;background:#A74419;color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:12px 28px;text-decoration:none;">
               View in Admin Panel
+            </a>
+          </div>
+          <div style="background:#fdf6f3;padding:16px 32px;text-align:center;">
+            <p style="font-size:10px;color:#aaa;margin:0;">ORANA — UAE</p>
+          </div>
+        </div>
+      `,
+    });
+
+    // Order confirmation to the customer — non-blocking
+    sendEmail({
+      to: customer.email,
+      subject: `ORANA — Your order has been placed (#${String(order._id).slice(-8).toUpperCase()})`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#000;">
+          <div style="background:#A74419;padding:24px 32px;">
+            <h1 style="color:#fff;font-size:20px;margin:0;letter-spacing:2px;">ORANA</h1>
+            <p style="color:rgba(255,255,255,0.8);font-size:12px;margin:6px 0 0;">Order Confirmation</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:14px;margin:0 0 8px;">Hi ${customer.firstName},</p>
+            <p style="font-size:13px;color:#555;margin:0 0 24px;">Thank you for your order! We've received it and will be in touch once it's on its way.${paymentMethod === 'cod' ? ' Please have your payment ready upon delivery.' : ''}</p>
+            <p style="font-size:10px;color:#888;margin:0 0 24px;">Order ID: <strong style="color:#A74419;">${order._id}</strong></p>
+
+            ${orderDetailsHtml}
+
+            <a href="${process.env.FRONTEND_URL}/shop" style="display:inline-block;background:#A74419;color:#fff;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:12px 28px;text-decoration:none;">
+              Continue Shopping
             </a>
           </div>
           <div style="background:#fdf6f3;padding:16px 32px;text-align:center;">
@@ -772,6 +817,29 @@ app.patch('/api/orders/:id/status', requireDb, requireAdmin, async (req, res) =>
     const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST bulk delete orders — admin
+app.post('/api/orders/bulk-delete', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids array is required' });
+    const result = await Order.deleteMany({ _id: { $in: ids } });
+    res.json({ deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE single order — admin
+app.delete('/api/orders/:id', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ message: 'Order deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -863,6 +931,29 @@ app.patch('/api/contact/:id/read', requireDb, requireAdmin, async (req, res) => 
     );
     if (!msg) return res.status(404).json({ error: 'Message not found' });
     res.json(msg);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST bulk delete contact messages — admin
+app.post('/api/contact/bulk-delete', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids array is required' });
+    const result = await ContactMessage.deleteMany({ _id: { $in: ids } });
+    res.json({ deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE single contact message — admin
+app.delete('/api/contact/:id', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const msg = await ContactMessage.findByIdAndDelete(req.params.id);
+    if (!msg) return res.status(404).json({ error: 'Message not found' });
+    res.json({ message: 'Message deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

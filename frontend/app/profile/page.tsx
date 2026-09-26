@@ -12,7 +12,7 @@ type Tab = "info" | "orders";
 const AED_TO_USD = 1 / 3.6725;
 function fmtPrice(aed: number, currency: string): string {
   if (currency === "USD") return `$ ${(aed * AED_TO_USD).toFixed(2)}`;
-  return `Dhs. ${aed}`;
+  return `Dhs. ${Number.isInteger(aed) ? aed : aed.toFixed(2)}`;
 }
 
 interface OrderItem { name: string; quantity: number; price: number; image?: string; productId?: string; }
@@ -20,7 +20,7 @@ interface Order {
   _id: string;
   items: OrderItem[];
   customer: { firstName: string; lastName: string; email: string; phone: string; address: string; city: string; country: string; };
-  subtotal: number; shipping: number; total: number;
+  subtotal: number; shipping: number; vat?: number; total: number;
   paymentMethod: string; status: string; createdAt: string;
   currency: string;
 }
@@ -321,6 +321,11 @@ export default function ProfilePage() {
                       <div className={styles.orderTotals}>
                         <span className={styles.orderTotalLabel}>{p.total}</span>
                         <span className={styles.orderTotalValue}>{fmtPrice(order.total, order.currency)}</span>
+                        {!!order.vat && (
+                          <span className={styles.orderPayment}>
+                            {p.inclVat} {fmtPrice(order.vat, order.currency)}
+                          </span>
+                        )}
                         <span className={styles.orderPayment}>
                           {order.paymentMethod === "cod" ? p.cashOnDelivery : p.card}
                         </span>

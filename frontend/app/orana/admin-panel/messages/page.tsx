@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import panelStyles from "../../../styles/admin/AdminPanel.module.css";
 import styles from "../../../styles/admin/Messages.module.css";
 import { adminFetch } from "../../../lib/adminFetch";
+import ConfirmModal from "../../../components/admin/ConfirmModal";
+import TrashIcon from "../../../components/admin/TrashIcon";
 
 interface Message {
   _id: string;
@@ -23,6 +25,8 @@ function endOfDay(d: Date)   { const x = new Date(d); x.setHours(23,59,59,999); 
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [pendingDelete, setPendingDelete] = useState<string[] | null>(null);
 
   const [dateFilter, setDateFilter]     = useState<DateFilterType>(null);
   const [specificDate, setSpecificDate] = useState("");
@@ -42,6 +46,33 @@ export default function MessagesPage() {
     await adminFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact/${id}/read`, { method: "PATCH" });
     setMessages((prev) => prev.map((m) => (m._id === id ? { ...m, read: true } : m)));
   };
+
+  function toggleChecked(id: string) {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    const ids = pendingDelete;
+    setPendingDelete(null);
+    try {
+      const res = ids.length === 1
+        ? await adminFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact/${ids[0]}`, { method: "DELETE" })
+        : await adminFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contact/bulk-delete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+      if (!res.ok) return;
+      const removed = new Set(ids);
+      setMessages((prev) => prev.filter((m) => !removed.has(m._id)));
+      setCheckedIds((prev) => new Set([...prev].filter((id) => !removed.has(id))));
+    } catch {}
+  }
 
   function clearDateFilter() {
     setDateFilter(null); setSpecificDate(""); setRangeFrom(""); setRangeTo("");
@@ -155,6 +186,18 @@ export default function MessagesPage() {
   const filtered = messages.filter(isInDateFilter);
   const unreadCount = filtered.filter((m) => !m.read).length;
 
+  // Only messages visible under the current filter can be bulk-deleted
+  const checkedVisible = filtered.filter((m) => checkedIds.has(m._id)).map((m) => m._id);
+  const allVisibleChecked = filtered.length > 0 && checkedVisible.length === filtered.length;
+  function toggleAllVisible() {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleChecked) filtered.forEach((m) => next.delete(m._id));
+      else filtered.forEach((m) => next.add(m._id));
+      return next;
+    });
+  }
+
   return (
     <div className={panelStyles.page}>
       <div className={panelStyles.header}>
@@ -225,6 +268,29 @@ export default function MessagesPage() {
       {filtered.length === 0 ? (
         <p className={panelStyles.empty}>No messages{dateFilter ? " for this period" : " yet"}.</p>
       ) : (
+        <>
+        <div className={panelStyles.bulkBar}>
+          <label className={panelStyles.bulkSelectAll}>
+            <input
+              type="checkbox"
+              className={panelStyles.checkbox}
+              checked={allVisibleChecked}
+              onChange={toggleAllVisible}
+            />
+            Select all
+          </label>
+          {checkedVisible.length > 0 && (
+            <>
+              <span className={panelStyles.bulkCount}>{checkedVisible.length} selected</span>
+              <button className={panelStyles.deleteRowBtn} onClick={() => setPendingDelete(checkedVisible)}>
+                Delete Selected
+              </button>
+              <button className={panelStyles.bulkClearBtn} onClick={() => setCheckedIds(new Set())}>
+                Clear Selection
+              </button>
+            </>
+          )}
+        </div>
         <div className={styles.list}>
           {filtered.map((m) => (
             <div
@@ -232,7 +298,16 @@ export default function MessagesPage() {
               className={`${styles.card} ${m.read ? styles.cardRead : styles.cardUnread}`}
             >
               <div className={styles.cardHeader}>
-                <span className={styles.name}>{m.firstName} {m.lastName}</span>
+                <label className={styles.nameWrap}>
+                  <input
+                    type="checkbox"
+                    className={panelStyles.checkbox}
+                    checked={checkedIds.has(m._id)}
+                    onChange={() => toggleChecked(m._id)}
+                    aria-label="Select message"
+                  />
+                  <span className={styles.name}>{m.firstName} {m.lastName}</span>
+                </label>
                 <span className={styles.date}>
                   {new Date(m.createdAt).toLocaleDateString("en-GB", {
                     day: "2-digit", month: "short", year: "numeric",
@@ -252,10 +327,30 @@ export default function MessagesPage() {
                     Mark as read
                   </button>
                 )}
+                <button
+                  className={panelStyles.iconDeleteBtn}
+                  onClick={() => setPendingDelete([m._id])}
+                  title="Delete message"
+                  aria-label="Delete message"
+                >
+                  <TrashIcon />
+                </button>
               </div>
             </div>
           ))}
         </div>
+        </>
+      )}
+
+      {pendingDelete && (
+        <ConfirmModal
+          title={pendingDelete.length === 1 ? "Delete Message" : `Delete ${pendingDelete.length} Messages`}
+          message={pendingDelete.length === 1
+            ? "Are you sure you want to delete this message? This cannot be undone."
+            : `Are you sure you want to delete ${pendingDelete.length} messages? This cannot be undone.`}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
       )}
     </div>
   );

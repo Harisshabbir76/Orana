@@ -9,14 +9,17 @@ import WishlistSidebar from "./WishlistSidebar";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/orana/");
+  // Checkout flow (checkout, success, failed, cancel) is distraction-free
+  const isCheckout = pathname === "/checkout" || pathname.startsWith("/checkout/");
+  const hideChrome = isAdmin || isCheckout;
 
   return (
     <>
-      {!isAdmin && <Navbar />}
+      {!hideChrome && <Navbar />}
       {children}
-      {!isAdmin && <Footer />}
-      {!isAdmin && <CartSidebar />}
-      {!isAdmin && <WishlistSidebar />}
+      {!hideChrome && <Footer />}
+      {!hideChrome && <CartSidebar />}
+      {!hideChrome && <WishlistSidebar />}
     </>
   );
 }

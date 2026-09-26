@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import panelStyles from "../../../styles/admin/AdminPanel.module.css";
 import styles from "../../../styles/admin/Orders.module.css";
 import { adminFetch } from "../../../lib/adminFetch";
+import ConfirmModal from "../../../components/admin/ConfirmModal";
+import TrashIcon from "../../../components/admin/TrashIcon";
 
 interface OrderItem {
   name: string;
@@ -14,7 +16,7 @@ interface OrderItem {
 const AED_TO_USD = 1 / 3.6725;
 function fmtPrice(aed: number, currency: string): string {
   if (currency === "USD") return `$ ${(aed * AED_TO_USD).toFixed(2)}`;
-  return `Dhs. ${aed}`;
+  return `Dhs. ${Number.isInteger(aed) ? aed : aed.toFixed(2)}`;
 }
 
 interface Order {
@@ -31,6 +33,7 @@ interface Order {
   };
   subtotal: number;
   shipping: number;
+  vat?: number;
   total: number;
   paymentMethod: string;
   status: string;
@@ -70,6 +73,8 @@ export default function OrdersPage() {
   const [orders, setOrders]     = useState<Order[]>([]);
   const [selected, setSelected] = useState<Order | null>(null);
   const [tab, setTab]           = useState("all");
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [pendingDelete, setPendingDelete] = useState<string[] | null>(null);
 
   const [dateFilter, setDateFilter]     = useState<DateFilterType>(null);
   const [specificDate, setSpecificDate] = useState("");
@@ -99,6 +104,34 @@ export default function OrdersPage() {
       if (selected?._id === orderId) {
         setSelected((prev) => prev ? { ...prev, status: newStatus } : prev);
       }
+    } catch {}
+  }
+
+  function toggleChecked(id: string) {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    const ids = pendingDelete;
+    setPendingDelete(null);
+    try {
+      const res = ids.length === 1
+        ? await adminFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${ids[0]}`, { method: "DELETE" })
+        : await adminFetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/bulk-delete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+      if (!res.ok) return;
+      const removed = new Set(ids);
+      setOrders((prev) => prev.filter((o) => !removed.has(o._id)));
+      setCheckedIds((prev) => new Set([...prev].filter((id) => !removed.has(id))));
+      if (selected && removed.has(selected._id)) setSelected(null);
     } catch {}
   }
 
@@ -230,6 +263,18 @@ export default function OrdersPage() {
   const dateFiltered = orders.filter(isInDateFilter);
   const filtered = tab === "all" ? dateFiltered : dateFiltered.filter((o) => o.status === tab);
 
+  // Only rows visible under the current filters can be bulk-deleted
+  const checkedVisible = filtered.filter((o) => checkedIds.has(o._id)).map((o) => o._id);
+  const allVisibleChecked = filtered.length > 0 && checkedVisible.length === filtered.length;
+  function toggleAllVisible() {
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleChecked) filtered.forEach((o) => next.delete(o._id));
+      else filtered.forEach((o) => next.add(o._id));
+      return next;
+    });
+  }
+
   const countFor = (key: string) =>
     key === "all" ? dateFiltered.length : dateFiltered.filter((o) => o.status === key).length;
 
@@ -319,9 +364,30 @@ export default function OrdersPage() {
       {filtered.length === 0 ? (
         <p className={panelStyles.empty}>No {tab === "all" ? "" : tab} orders.</p>
       ) : (
+        <>
+        {checkedVisible.length > 0 && (
+          <div className={panelStyles.bulkBar}>
+            <span className={panelStyles.bulkCount}>{checkedVisible.length} selected</span>
+            <button className={panelStyles.deleteRowBtn} onClick={() => setPendingDelete(checkedVisible)}>
+              Delete Selected
+            </button>
+            <button className={panelStyles.bulkClearBtn} onClick={() => setCheckedIds(new Set())}>
+              Clear Selection
+            </button>
+          </div>
+        )}
         <table className={panelStyles.table}>
           <thead>
             <tr>
+              <th className={panelStyles.checkCell}>
+                <input
+                  type="checkbox"
+                  className={panelStyles.checkbox}
+                  checked={allVisibleChecked}
+                  onChange={toggleAllVisible}
+                  aria-label="Select all orders"
+                />
+              </th>
               <th>Order ID</th>
               <th>Customer</th>
               <th>Items</th>
@@ -335,6 +401,15 @@ export default function OrdersPage() {
           <tbody>
             {filtered.map((order) => (
               <tr key={order._id}>
+                <td className={panelStyles.checkCell}>
+                  <input
+                    type="checkbox"
+                    className={panelStyles.checkbox}
+                    checked={checkedIds.has(order._id)}
+                    onChange={() => toggleChecked(order._id)}
+                    aria-label="Select order"
+                  />
+                </td>
                 <td>
                   <span className={styles.orderId}>
                     #{order._id.slice(-8).toUpperCase()}
@@ -378,12 +453,32 @@ export default function OrdersPage() {
                     <button className={styles.viewBtn} onClick={() => setSelected(order)}>
                       View Details
                     </button>
+                    <button
+                      className={panelStyles.iconDeleteBtn}
+                      onClick={() => setPendingDelete([order._id])}
+                      title="Delete order"
+                      aria-label="Delete order"
+                    >
+                      <TrashIcon />
+                    </button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        </>
+      )}
+
+      {pendingDelete && (
+        <ConfirmModal
+          title={pendingDelete.length === 1 ? "Delete Order" : `Delete ${pendingDelete.length} Orders`}
+          message={pendingDelete.length === 1
+            ? "Are you sure you want to delete this order? This cannot be undone."
+            : `Are you sure you want to delete ${pendingDelete.length} orders? This cannot be undone.`}
+          onConfirm={confirmDelete}
+          onCancel={() => setPendingDelete(null)}
+        />
       )}
 
       {/* ── Order detail modal ── */}
@@ -438,6 +533,10 @@ export default function OrdersPage() {
                   <div className={styles.totalRow}>
                     <span>Shipping</span>
                     <span>{selected.shipping === 0 ? "Free" : fmtPrice(selected.shipping, selected.currency)}</span>
+                  </div>
+                  <div className={styles.totalRow}>
+                    <span>VAT (5%)</span>
+                    <span>{fmtPrice(selected.vat ?? 0, selected.currency)}</span>
                   </div>
                   <div className={`${styles.totalRow} ${styles.totalRowBold}`}>
                     <span>Total</span>
