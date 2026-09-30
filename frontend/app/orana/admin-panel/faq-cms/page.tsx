@@ -79,13 +79,13 @@ export default function FAQCMSPage() {
       groups={GROUPS}
     >
       {(elements, _sel, _setSel, setElements) => {
-        const cmsCountStr = elements["faq-count"]?.content;
+        const cmsCountStr = elements["faq-count-v2"]?.content;
         const itemCount = cmsCountStr ? parseInt(cmsCountStr) : en.faq.items.length;
 
         function addFAQ() {
           setElements(prev => ({
             ...prev,
-            "faq-count": { content: String(itemCount + 1) },
+            "faq-count-v2": { content: String(itemCount + 1) },
             [`faq-q-${itemCount}`]: { content: `${itemCount + 1}. ` },
             [`faq-a-${itemCount}`]: { content: "" },
           }));
@@ -106,7 +106,7 @@ export default function FAQCMSPage() {
             delete next[`faq-a-${itemCount - 1}`];
             delete next[`ar:faq-q-${itemCount - 1}`];
             delete next[`ar:faq-a-${itemCount - 1}`];
-            next["faq-count"] = { content: String(Math.max(0, itemCount - 1)) };
+            next["faq-count-v2"] = { content: String(Math.max(0, itemCount - 1)) };
             return next;
           });
         }

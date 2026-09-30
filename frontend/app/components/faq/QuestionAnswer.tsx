@@ -17,7 +17,8 @@ export default function QuestionAnswer({ onAdd, onDeleteItem }: Props = {}) {
   const f = t.faq;
   const { getContent, getStyle, cmsMode, selectedId, selectElement } = usePageCMS();
 
-  const cmsCountStr = getContent("faq-count", "");
+  // v2: FAQ list was replaced in Sept 2026; ignore the count saved for the old list
+  const cmsCountStr = getContent("faq-count-v2", "");
   const itemCount = cmsCountStr ? parseInt(cmsCountStr) : f.items.length;
 
   function ce(id: string, extra: React.CSSProperties = {}): React.HTMLAttributes<HTMLElement> & { style: React.CSSProperties } {
