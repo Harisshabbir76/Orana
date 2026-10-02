@@ -21,6 +21,9 @@ interface Order {
     country: string;
   };
   subtotal: number;
+  couponCode?: string | null;
+  couponPercent?: number;
+  discount?: number;
   shipping: number;
   vat?: number;
   total: number;
@@ -86,6 +89,12 @@ export default function CheckoutSuccess() {
                   <span>{s.subtotal}</span>
                   <span>{fmtPrice(order.subtotal, order.currency)}</span>
                 </div>
+                {!!order.discount && (
+                  <div className={styles.orderSummaryRow}>
+                    <span>{s.discount} ({order.couponCode} · {order.couponPercent}%)</span>
+                    <span>− {fmtPrice(order.discount, order.currency)}</span>
+                  </div>
+                )}
                 <div className={styles.orderSummaryRow}>
                   <span>{s.shipping}</span>
                   <span>{order.shipping === 0 ? s.free : fmtPrice(order.shipping, order.currency)}</span>

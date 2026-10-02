@@ -14,6 +14,7 @@ export default function AddProduct() {
   const [washCare, setWashCare] = useState("");
   const [washCareAr, setWashCareAr] = useState("");
   const [price, setPrice] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
   const [stock, setStock] = useState("");
   const [showOnHomepage, setShowOnHomepage] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -21,6 +22,9 @@ export default function AddProduct() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const discountInvalid =
+    discountedPrice !== "" && price !== "" && parseFloat(discountedPrice) >= parseFloat(price);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -35,6 +39,7 @@ export default function AddProduct() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (discountInvalid) return;
     setStatus("loading");
     setMessage("");
 
@@ -46,6 +51,7 @@ export default function AddProduct() {
     formData.append("washCare", washCare);
     formData.append("washCareAr", washCareAr);
     formData.append("price", price);
+    formData.append("discountedPrice", discountedPrice);
     formData.append("stock", stock);
     formData.append("showOnHomepage", String(showOnHomepage));
     imageFiles.forEach((file) => formData.append("images", file));
@@ -65,6 +71,7 @@ export default function AddProduct() {
       setDescription(""); setDescriptionAr("");
       setWashCare(""); setWashCareAr("");
       setPrice("");
+      setDiscountedPrice("");
       setStock("");
       setShowOnHomepage(false);
       setImageFiles([]);
@@ -171,24 +178,47 @@ export default function AddProduct() {
         </div>
 
         {/* Price */}
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="price">Price (Dhs.)</label>
-          <div className={styles.priceRow}>
-            <span className={styles.currencyTag}>Dhs.</span>
-            <input
-              id="price"
-              className={styles.priceInput}
-              type="number"
-              placeholder="600"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              min="0"
-              step="0.01"
-              required
-            />
+        <div className={styles.priceFields}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="price">Original Price (Dhs.)</label>
+            <div className={styles.priceRow}>
+              <span className={styles.currencyTag}>Dhs.</span>
+              <input
+                id="price"
+                className={styles.priceInput}
+                type="number"
+                placeholder="600"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="discountedPrice">
+              Discounted Price <span className={styles.hint}>(optional)</span>
+            </label>
+            <div className={styles.priceRow}>
+              <span className={styles.currencyTag}>Dhs.</span>
+              <input
+                id="discountedPrice"
+                className={styles.priceInput}
+                type="number"
+                placeholder="e.g. 450"
+                value={discountedPrice}
+                onChange={(e) => setDiscountedPrice(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
           </div>
         </div>
-
+        {discountInvalid && (
+          <p className={styles.fieldError}>Discounted price must be lower than the original price.</p>
+        )}
         {/* Stock */}
         <div className={styles.field}>
           <label className={styles.label} htmlFor="stock">
@@ -267,7 +297,7 @@ export default function AddProduct() {
         <button
           type="submit"
           className={styles.submitBtn}
-          disabled={status === "loading"}
+          disabled={status === "loading" || discountInvalid}
         >
           {status === "loading" ? "Saving..." : "Save Product"}
         </button>

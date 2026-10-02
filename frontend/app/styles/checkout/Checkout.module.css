@@ -351,6 +351,77 @@
   font-size: 13px;
 }
 
+/* ── Coupon ── */
+.couponBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.couponRow {
+  display: flex;
+  gap: 8px;
+}
+
+.couponRow .input {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  text-transform: uppercase;
+}
+
+.couponRow .input::placeholder { text-transform: none; }
+
+.couponBtn {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: #A74419;
+  border: none;
+  padding: 0 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.couponBtn:hover:not(:disabled) { background: #8a3614; }
+.couponBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.couponApplied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #2e7d32;
+  background: #f0faf0;
+  border: 1px dashed #a5d6a7;
+  padding: 10px 12px;
+}
+
+.couponRemove {
+  font-family: var(--font-body);
+  font-size: 10px;
+  text-decoration: underline;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.couponError {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: #c62828;
+  margin: 0;
+}
+
+.discountRow { color: #2e7d32; }
+
 /* ── Empty cart ── */
 .emptyState {
   text-align: center;

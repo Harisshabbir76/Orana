@@ -6,6 +6,8 @@ import { useStore } from "../context/StoreContext";
 import { useCurrency } from "../context/CurrencyContext";
 import { useTranslation } from "../hooks/useTranslation";
 import styles from "../styles/CartSidebar.module.css";
+import PriceTag from "./PriceTag";
+import { effectivePrice } from "../lib/price";
 
 export default function CartSidebar() {
   const { cartItems, cartOpen, closeCart, removeFromCart, updateQty } = useStore();
@@ -13,7 +15,7 @@ export default function CartSidebar() {
   const t = useTranslation();
   const router = useRouter();
 
-  const total = cartItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const total = cartItems.reduce((sum, i) => sum + effectivePrice(i.product) * i.quantity, 0);
 
   return (
     <>
@@ -44,7 +46,7 @@ export default function CartSidebar() {
                 </div>
                 <div className={styles.itemInfo}>
                   <p className={styles.itemName}>{product.name}</p>
-                  <p className={styles.itemPrice}>{formatPrice(product.price)}</p>
+                  <p className={styles.itemPrice}><PriceTag product={product} /></p>
                   <div className={styles.qtyRow}>
                     <button className={styles.qtyBtn} onClick={() => updateQty(product._id, quantity - 1)}>−</button>
                     <span className={styles.qty}>{quantity}</span>

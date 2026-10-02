@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "../hooks/useTranslation";
 import { usePageCMS, PageCMSProvider } from "../context/PageCMSContext";
@@ -8,7 +9,10 @@ import LegalSectionContent from "../components/legal/LegalSectionContent";
 import Destination from "../components/homepage/Destination";
 import Instagram from "../components/homepage/Instagram";
 
+type TabKey = "privacy" | "terms" | "returns";
+
 function LegalContent() {
+  const [activeTab, setActiveTab] = useState<TabKey>("privacy");
   const t = useTranslation();
   const l = t.legal;
   const { getContent, getStyle, cmsMode, selectedId, selectElement } = usePageCMS();
@@ -22,8 +26,15 @@ function LegalContent() {
     };
   }
 
-  const deletedSet = new Set<number>(JSON.parse(getContent("legal-deleted-sections", "[]") || "[]"));
-  const extraCountStr = getContent("legal-extra-count", "");
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "privacy", label: l.tabPrivacy },
+    { key: "terms",   label: l.tabTerms },
+    { key: "returns", label: l.tabReturns },
+  ];
+
+  const sections = l.content[activeTab].sections;
+  const deletedSet = new Set<number>(JSON.parse(getContent(`legal-${activeTab}-deleted-sections`, "[]") || "[]"));
+  const extraCountStr = getContent(`legal-${activeTab}-extra-count`, "");
   const extraCount = extraCountStr ? parseInt(extraCountStr) : 0;
 
   return (
@@ -43,18 +54,32 @@ function LegalContent() {
 
           <hr className={styles.divider} />
 
+          <div className={styles.tabs}>
+            {tabs.map(tab => (
+              <button
+                key={tab.key}
+                className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ""}`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <hr className={styles.divider} />
+
           <div className={styles.content}>
-            {l.sections.map((section, i) => deletedSet.has(i) ? null : (
-              <div key={i} className={styles.section}>
-                <LegalSectionContent section={section} index={i} ce={ce} />
+            {sections.map((section, i) => deletedSet.has(i) ? null : (
+              <div key={`${activeTab}-${i}`} className={styles.section}>
+                <LegalSectionContent section={section} idPrefix={`legal-${activeTab}`} index={i} ce={ce} />
               </div>
             ))}
 
             {Array.from({ length: extraCount }, (_, i) => {
-              const title = getContent(`legal-extra-${i}-title`, "");
-              const text  = getContent(`legal-extra-${i}-text`, "");
+              const title = getContent(`legal-${activeTab}-extra-${i}-title`, "");
+              const text  = getContent(`legal-${activeTab}-extra-${i}-text`, "");
               return (
-                <div key={`extra-${i}`} className={styles.section}>
+                <div key={`${activeTab}-extra-${i}`} className={styles.section}>
                   {title && <h2 className={styles.sectionTitle}>{title}</h2>}
                   {text  && <p  className={styles.sectionText}>{text}</p>}
                 </div>

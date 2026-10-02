@@ -12,6 +12,7 @@ const mainLinks = [
   { href: "/orana/admin-panel/add-product",       label: "Add Product" },
   { href: "/orana/admin-panel/email-marketing",   label: "Email Marketing" },
   { href: "/orana/admin-panel/shipping",          label: "Shipping" },
+  { href: "/orana/admin-panel/coupons",           label: "Coupons" },
 ];
 
 const cmsLinks = [

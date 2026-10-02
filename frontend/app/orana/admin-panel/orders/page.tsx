@@ -32,6 +32,9 @@ interface Order {
     country: string;
   };
   subtotal: number;
+  couponCode?: string | null;
+  couponPercent?: number;
+  discount?: number;
   shipping: number;
   vat?: number;
   total: number;
@@ -530,6 +533,12 @@ export default function OrdersPage() {
                     <span>Subtotal</span>
                     <span>{fmtPrice(selected.subtotal, selected.currency)}</span>
                   </div>
+                  {!!selected.discount && (
+                    <div className={styles.totalRow}>
+                      <span>Coupon {selected.couponCode} ({selected.couponPercent}%)</span>
+                      <span>− {fmtPrice(selected.discount, selected.currency)}</span>
+                    </div>
+                  )}
                   <div className={styles.totalRow}>
                     <span>Shipping</span>
                     <span>{selected.shipping === 0 ? "Free" : fmtPrice(selected.shipping, selected.currency)}</span>

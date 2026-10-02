@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import translations from "../../../translations";
 import PageCMSEditor from "../../../components/admin/PageCMSEditor";
 import { usePageCMS } from "../../../context/PageCMSContext";
@@ -13,6 +14,9 @@ const IMAGE_IDS = new Set<string>();
 const en = translations.English.legal;
 const ar = translations.Arabic.legal;
 
+type TabKey = "privacy" | "terms" | "returns";
+const TAB_KEYS: TabKey[] = ["privacy", "terms", "returns"];
+
 // Build dynamic labels and defaults from all sections
 const sectionLabels: Record<string, string> = {};
 const sectionDefaults: Record<string, string> = {};
@@ -25,14 +29,17 @@ const FIELDS = [
   { key: "linkText",  part: "link",  label: "Link Text" },
 ] as const;
 
-en.sections.forEach((sec, i) => {
-  FIELDS.forEach(({ key, part, label }) => {
-    const val = sec[key];
-    if (!val) return;
-    const id = `legal-section-${i}-${part}`;
-    sectionLabels[id] = `Section ${i + 1} — ${label}`;
-    sectionDefaults[id] = val;
-    sectionArDefaults[id] = ar.sections[i]?.[key] ?? val;
+TAB_KEYS.forEach(tab => {
+  const tabLabel = en[`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}` as "tabPrivacy" | "tabTerms" | "tabReturns"];
+  en.content[tab].sections.forEach((sec, i) => {
+    FIELDS.forEach(({ key, part, label }) => {
+      const val = sec[key];
+      if (!val) return;
+      const id = `legal-${tab}-section-${i}-${part}`;
+      sectionLabels[id] = `${tabLabel} — Section ${i + 1} ${label}`;
+      sectionDefaults[id] = val;
+      sectionArDefaults[id] = ar.content[tab].sections[i]?.[key] ?? val;
+    });
   });
 });
 
@@ -61,6 +68,7 @@ function LegalPreview({
   elements: Record<string, ElementData>;
   setElements: React.Dispatch<React.SetStateAction<Record<string, ElementData>>>;
 }) {
+  const [activeTab, setActiveTab] = useState<TabKey>("privacy");
   const { getContent, getStyle, cmsMode, selectedId, selectElement } = usePageCMS();
 
   function ce(id: string): React.HTMLAttributes<HTMLElement> & { style: React.CSSProperties } {
@@ -73,12 +81,20 @@ function LegalPreview({
   }
 
   const l = translations.English.legal;
-  const extraCount = parseInt(elements["legal-extra-count"]?.content ?? "0");
-  const deletedSet = new Set<number>(JSON.parse(elements["legal-deleted-sections"]?.content ?? "[]"));
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "privacy", label: l.tabPrivacy },
+    { key: "terms",   label: l.tabTerms },
+    { key: "returns", label: l.tabReturns },
+  ];
+
+  const sections = l.content[activeTab].sections;
+  const extraCount = parseInt(elements[`legal-${activeTab}-extra-count`]?.content ?? "0");
+  const deletedSet = new Set<number>(JSON.parse(elements[`legal-${activeTab}-deleted-sections`]?.content ?? "[]"));
 
   function deleteTranslationSection(i: number) {
+    const tab = activeTab;
     setElements(prev => {
-      const key = "legal-deleted-sections";
+      const key = `legal-${tab}-deleted-sections`;
       const existing = new Set<number>(JSON.parse(prev[key]?.content ?? "[]"));
       existing.add(i);
       return { ...prev, [key]: { content: JSON.stringify([...existing]) } };
@@ -86,30 +102,32 @@ function LegalPreview({
   }
 
   function addSection() {
+    const tab = activeTab;
     setElements(prev => {
-      const key = "legal-extra-count";
+      const key = `legal-${tab}-extra-count`;
       const cur = parseInt(prev[key]?.content ?? "0");
       return { ...prev, [key]: { content: String(cur + 1) } };
     });
   }
 
   function deleteSection(i: number) {
+    const tab = activeTab;
     setElements(prev => {
-      const key = "legal-extra-count";
+      const key = `legal-${tab}-extra-count`;
       const cur = parseInt(prev[key]?.content ?? "0");
       const next = { ...prev };
       for (let j = i; j < cur - 1; j++) {
-        next[`legal-extra-${j}-title`] = next[`legal-extra-${j + 1}-title`] ?? {};
-        next[`legal-extra-${j}-text`]  = next[`legal-extra-${j + 1}-text`]  ?? {};
-        if (next[`ar:legal-extra-${j + 1}-title`]) next[`ar:legal-extra-${j}-title`] = next[`ar:legal-extra-${j + 1}-title`];
-        else delete next[`ar:legal-extra-${j}-title`];
-        if (next[`ar:legal-extra-${j + 1}-text`]) next[`ar:legal-extra-${j}-text`] = next[`ar:legal-extra-${j + 1}-text`];
-        else delete next[`ar:legal-extra-${j}-text`];
+        next[`legal-${tab}-extra-${j}-title`] = next[`legal-${tab}-extra-${j + 1}-title`] ?? {};
+        next[`legal-${tab}-extra-${j}-text`]  = next[`legal-${tab}-extra-${j + 1}-text`]  ?? {};
+        if (next[`ar:legal-${tab}-extra-${j + 1}-title`]) next[`ar:legal-${tab}-extra-${j}-title`] = next[`ar:legal-${tab}-extra-${j + 1}-title`];
+        else delete next[`ar:legal-${tab}-extra-${j}-title`];
+        if (next[`ar:legal-${tab}-extra-${j + 1}-text`]) next[`ar:legal-${tab}-extra-${j}-text`] = next[`ar:legal-${tab}-extra-${j + 1}-text`];
+        else delete next[`ar:legal-${tab}-extra-${j}-text`];
       }
-      delete next[`legal-extra-${cur - 1}-title`];
-      delete next[`legal-extra-${cur - 1}-text`];
-      delete next[`ar:legal-extra-${cur - 1}-title`];
-      delete next[`ar:legal-extra-${cur - 1}-text`];
+      delete next[`legal-${tab}-extra-${cur - 1}-title`];
+      delete next[`legal-${tab}-extra-${cur - 1}-text`];
+      delete next[`ar:legal-${tab}-extra-${cur - 1}-title`];
+      delete next[`ar:legal-${tab}-extra-${cur - 1}-text`];
       next[key] = { content: String(Math.max(0, cur - 1)) };
       return next;
     });
@@ -128,14 +146,22 @@ function LegalPreview({
           <p className={lStyles.subtitle} {...ce("legal-subtitle")}>{getContent("legal-subtitle", l.subtitle)}</p>
         </div>
         <hr className={lStyles.divider} />
+        <div className={lStyles.tabs}>
+          {tabs.map(tab => (
+            <button key={tab.key} className={`${lStyles.tab} ${activeTab === tab.key ? lStyles.tabActive : ""}`} onClick={() => setActiveTab(tab.key)}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <hr className={lStyles.divider} />
         <div className={lStyles.content}>
 
           {/* Existing translation sections */}
-          {l.sections.map((section, i) => {
+          {sections.map((section, i) => {
             if (deletedSet.has(i)) return null;
             return (
-              <div key={i} className={lStyles.section} style={{ position: "relative", paddingRight: cmsMode ? 80 : 0 }}>
-                <LegalSectionContent section={section} index={i} ce={ce} />
+              <div key={`${activeTab}-${i}`} className={lStyles.section} style={{ position: "relative", paddingRight: cmsMode ? 80 : 0 }}>
+                <LegalSectionContent section={section} idPrefix={`legal-${activeTab}`} index={i} ce={ce} />
                 {cmsMode && (
                   <button
                     onClick={(e) => { e.stopPropagation(); deleteTranslationSection(i); }}
@@ -149,10 +175,10 @@ function LegalPreview({
 
           {/* Extra CMS-added sections */}
           {Array.from({ length: extraCount }, (_, i) => {
-            const titleId = `legal-extra-${i}-title`;
-            const textId  = `legal-extra-${i}-text`;
+            const titleId = `legal-${activeTab}-extra-${i}-title`;
+            const textId  = `legal-${activeTab}-extra-${i}-text`;
             return (
-              <div key={`extra-${i}`} className={lStyles.section} style={{ position: "relative", paddingRight: cmsMode ? 110 : 0 }}>
+              <div key={`${activeTab}-extra-${i}`} className={lStyles.section} style={{ position: "relative", paddingRight: cmsMode ? 110 : 0 }}>
                 <h2
                   className={lStyles.sectionTitle}
                   {...ce(titleId)}
@@ -186,7 +212,7 @@ function LegalPreview({
               onClick={(e) => { e.stopPropagation(); addSection(); }}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, margin: "16px 0 8px", padding: "10px 16px", border: "1.5px dashed #DB663B", background: "transparent", color: "#DB663B", cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", width: "100%", textTransform: "uppercase" }}
             >
-              + Add Section
+              + Add Section to {tabs.find(t => t.key === activeTab)?.label}
             </button>
           )}
         </div>

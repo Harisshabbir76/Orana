@@ -9,6 +9,8 @@ import { useCurrency } from "../context/CurrencyContext";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "../hooks/useTranslation";
 import styles from "../styles/checkout/Checkout.module.css";
+import PriceTag from "../components/PriceTag";
+import { effectivePrice, type Priced } from "../lib/price";
 
 const VAT_RATE = 0.05; // UAE VAT — 5% of subtotal + shipping
 
@@ -30,6 +32,11 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">("cod");
   const [loading, setLoading]           = useState(false);
   const [shipping, setShipping]         = useState<number | null>(null);
+  const [latestPrices, setLatestPrices] = useState<Record<string, Priced>>({});
+  const [couponInput, setCouponInput]   = useState("");
+  const [coupon, setCoupon]             = useState<{ code: string; percentage: number } | null>(null);
+  const [couponError, setCouponError]   = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
 
   // Re-fill form when user loads after hard refresh
   useEffect(() => {
@@ -51,10 +58,48 @@ export default function CheckoutPage() {
       .catch(() => setShipping(0));
   }, []);
 
+  // Cart items hold a snapshot of the product — refresh prices so discounts changed since then are reflected
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!Array.isArray(data)) return;
+        const map: Record<string, Priced> = {};
+        data.forEach((p: Priced & { _id: string }) => { map[p._id] = { price: p.price, discountedPrice: p.discountedPrice ?? null }; });
+        setLatestPrices(map);
+      })
+      .catch(() => {});
+  }, []);
+
+  const priced = <T extends Priced & { _id: string }>(p: T): T => ({ ...p, ...latestPrices[p._id] });
+
   const round2 = (n: number) => Math.round(n * 100) / 100;
-  const subtotal = round2(cartItems.reduce((sum, i) => sum + i.product.price * i.quantity, 0));
-  const vat = round2((subtotal + (shipping ?? 0)) * VAT_RATE);
-  const total = round2(subtotal + (shipping ?? 0) + vat);
+  const subtotal = round2(cartItems.reduce((sum, i) => sum + effectivePrice(priced(i.product)) * i.quantity, 0));
+  const discount = coupon ? round2(subtotal * coupon.percentage / 100) : 0;
+  const vat = round2((subtotal - discount + (shipping ?? 0)) * VAT_RATE);
+  const total = round2(subtotal - discount + (shipping ?? 0) + vat);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setCoupon(null); setCouponError(data.error || c.couponError); return; }
+      setCoupon({ code: data.code, percentage: data.percentage });
+      setCouponInput("");
+    } catch {
+      setCouponError(c.couponError);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -73,13 +118,14 @@ export default function CheckoutPage() {
           items: cartItems.map((i) => ({
             productId: i.product._id,
             name:      i.product.name,
-            price:     i.product.price,
+            price:     effectivePrice(priced(i.product)),
             quantity:  i.quantity,
             image:     i.product.images?.[0]?.url ?? "",
           })),
           customer: form,
           paymentMethod,
           subtotal,
+          couponCode: coupon?.code ?? null,
           shipping,
           vat,
           total,
@@ -87,7 +133,16 @@ export default function CheckoutPage() {
           userId: user?.id ?? null,
         }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        // Coupon expired/invalidated between applying it and placing the order — let the user fix it
+        if (coupon && res.status === 400 && /coupon/i.test(data.error ?? "")) {
+          setCoupon(null);
+          setCouponError(data.error);
+          return;
+        }
+        throw new Error("Failed");
+      }
       const order = await res.json();
       clearCart();
       router.push(`/checkout/success?id=${order._id}`);
@@ -254,9 +309,44 @@ export default function CheckoutPage() {
                     <span className={styles.summaryQtyBadge}>{quantity}</span>
                   </div>
                   <span className={styles.summaryItemName}>{product.name}</span>
-                  <span className={styles.summaryItemPrice}>{formatPrice(product.price * quantity)}</span>
+                  <span className={styles.summaryItemPrice}><PriceTag product={priced(product)} quantity={quantity} /></span>
                 </div>
               ))}
+            </div>
+
+            <div className={styles.summaryDivider} />
+            <div className={styles.couponBox}>
+              <label className={styles.label} htmlFor="coupon">{c.coupon}</label>
+              {coupon ? (
+                <div className={styles.couponApplied}>
+                  <span>
+                    <strong>{coupon.code}</strong> — {coupon.percentage}% {c.couponApplied}
+                  </span>
+                  <button type="button" className={styles.couponRemove} onClick={() => setCoupon(null)}>
+                    {c.removeCoupon}
+                  </button>
+                </div>
+              ) : (
+                <div className={styles.couponRow}>
+                  <input
+                    id="coupon"
+                    className={styles.input}
+                    value={couponInput}
+                    placeholder={c.couponPlaceholder}
+                    onChange={(e) => { setCouponInput(e.target.value); setCouponError(""); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
+                  />
+                  <button
+                    type="button"
+                    className={styles.couponBtn}
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponInput.trim()}
+                  >
+                    {couponLoading ? "…" : c.applyCoupon}
+                  </button>
+                </div>
+              )}
+              {couponError && <p className={styles.couponError}>{couponError}</p>}
             </div>
 
             <div className={styles.summaryDivider} />
@@ -264,6 +354,12 @@ export default function CheckoutPage() {
               <span>{c.subtotal}</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
+            {coupon && (
+              <div className={`${styles.summaryRow} ${styles.discountRow}`}>
+                <span>{c.discount} ({coupon.percentage}%)</span>
+                <span>− {formatPrice(discount)}</span>
+              </div>
+            )}
             <div className={styles.summaryRow}>
               <span>{c.shipping}</span>
               <span>

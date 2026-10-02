@@ -9,9 +9,11 @@ import { useStore } from "../../context/StoreContext";
 import { useTranslation } from "../../hooks/useTranslation";
 import { usePageCMS } from "../../context/PageCMSContext";
 import styles from "../../styles/shop/ShopPage.module.css";
+import PriceTag from "../PriceTag";
+import { effectivePrice } from "../../lib/price";
 
 interface ProductImage { url: string; publicId: string; }
-interface Product { _id: string; name: string; nameAr?: string; slug?: string; price: number; images: ProductImage[]; inStock?: boolean; }
+interface Product { _id: string; name: string; nameAr?: string; slug?: string; price: number; discountedPrice?: number | null; images: ProductImage[]; inStock?: boolean; }
 
 type SortMode = "az" | "za" | "low-high" | "high-low" | null;
 type ViewMode = "grid2" | "grid3" | "list";
@@ -23,7 +25,7 @@ interface Props {
 
 function getInitialPriceMax(products: Product[]) {
   if (products.length === 0) return 1000;
-  return Math.max(...products.map((p) => p.price));
+  return Math.max(...products.map((p) => effectivePrice(p)));
 }
 
 export default function ShopPage({ initialProducts = [] }: Props) {
@@ -41,7 +43,7 @@ export default function ShopPage({ initialProducts = [] }: Props) {
   const filterRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
-  const { formatPrice, language } = useCurrency();
+  const { language } = useCurrency();
   const { addToCart, addToWishlist, isInWishlist, openCart } = useStore();
   const t = useTranslation();
   const { getContent, getStyle, cmsMode, selectedId, selectElement } = usePageCMS();
@@ -69,7 +71,7 @@ export default function ShopPage({ initialProducts = [] }: Props) {
   /* Apply filter + sort */
   const displayed = [...products]
     .filter((p) => {
-      const priceOk = p.price >= minVal && p.price <= maxVal;
+      const priceOk = effectivePrice(p) >= minVal && effectivePrice(p) <= maxVal;
       const stockOk =
         availability === "all" ||
         (availability === "in-stock"     && p.inStock !== false) ||
@@ -79,8 +81,8 @@ export default function ShopPage({ initialProducts = [] }: Props) {
     .sort((a, b) => {
       if (sortMode === "az") return a.name.localeCompare(b.name);
       if (sortMode === "za") return b.name.localeCompare(a.name);
-      if (sortMode === "low-high") return a.price - b.price;
-      if (sortMode === "high-low") return b.price - a.price;
+      if (sortMode === "low-high") return effectivePrice(a) - effectivePrice(b);
+      if (sortMode === "high-low") return effectivePrice(b) - effectivePrice(a);
       return 0;
     });
 
@@ -290,7 +292,7 @@ export default function ShopPage({ initialProducts = [] }: Props) {
                 </div>
                 <div className={styles.info}>
                   <p className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</p>
-                  <p className={styles.price}>{formatPrice(product.price)}</p>
+                  <p className={styles.price}><PriceTag product={product} /></p>
                 </div>
               </div>
             );

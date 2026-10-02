@@ -6,6 +6,7 @@ import Image from "next/image";
 import styles from "../../styles/admin/AdminPanel.module.css";
 import ConfirmModal from "./ConfirmModal";
 import { adminFetch } from "../../lib/adminFetch";
+import { hasDiscount } from "../../lib/price";
 
 interface ProductImage {
   url: string;
@@ -17,6 +18,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  discountedPrice?: number | null;
   images: ProductImage[];
   showOnHomepage: boolean;
   stock: number | null;
@@ -82,7 +84,7 @@ export default function AdminDashboard({ initialProducts = [] }: Props) {
                         ) : "—"}
                       </td>
                       <td>{p.name}</td>
-                      <td>Dhs. {p.price}</td>
+                      <td>{hasDiscount(p) ? <><s style={{ color: "#aaa" }}>Dhs. {p.price}</s> Dhs. {p.discountedPrice}</> : <>Dhs. {p.price}</>}</td>
                       <td style={stockStyle}>{stockLabel}</td>
                       <td>
                         <span className={p.showOnHomepage ? styles.badgeYes : styles.badgeNo}>
@@ -122,7 +124,7 @@ export default function AdminDashboard({ initialProducts = [] }: Props) {
                   </div>
                   <div className={styles.mobileCardBody}>
                     <p className={styles.mobileCardName}>{p.name}</p>
-                    <p className={styles.mobileCardPrice}>Dhs. {p.price}</p>
+                    <p className={styles.mobileCardPrice}>{hasDiscount(p) ? <><s style={{ color: "#aaa" }}>Dhs. {p.price}</s> Dhs. {p.discountedPrice}</> : <>Dhs. {p.price}</>}</p>
                     <p className={styles.mobileCardPrice} style={p.stock === 0 ? { color: "#c62828", fontWeight: 700 } : { color: "#aaa" }}>
                       {p.stock === null || p.stock === undefined ? "∞ stock" : `Stock: ${p.stock}`}
                     </p>

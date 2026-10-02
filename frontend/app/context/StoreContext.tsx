@@ -7,6 +7,7 @@ export interface StoreProduct {
   _id: string;
   name: string;
   price: number;
+  discountedPrice?: number | null;
   images: { url: string; publicId: string }[];
 }
 

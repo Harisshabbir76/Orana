@@ -8,6 +8,7 @@ import { useCurrency } from "../../context/CurrencyContext";
 import { useStore } from "../../context/StoreContext";
 import { useTranslation } from "../../hooks/useTranslation";
 import styles from "../../styles/product-description/ExploreDesigns.module.css";
+import PriceTag from "../PriceTag";
 
 interface ProductImage { url: string; publicId: string; }
 interface Product {
@@ -16,6 +17,7 @@ interface Product {
   nameAr?: string;
   slug?: string;
   price: number;
+  discountedPrice?: number | null;
   images: ProductImage[];
   inStock?: boolean;
 }
@@ -27,7 +29,7 @@ interface Props {
 export default function ExploreDesigns({ currentId }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const router = useRouter();
-  const { formatPrice, language } = useCurrency();
+  const { language } = useCurrency();
   const { addToCart, addToWishlist, isInWishlist, openCart } = useStore();
   const t = useTranslation();
   const e = t.exploreDesigns;
@@ -113,7 +115,7 @@ export default function ExploreDesigns({ currentId }: Props) {
 
               <div className={styles.info}>
                 <p className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</p>
-                <p className={styles.price}>{formatPrice(product.price)}</p>
+                <p className={styles.price}><PriceTag product={product} /></p>
               </div>
             </div>
           );

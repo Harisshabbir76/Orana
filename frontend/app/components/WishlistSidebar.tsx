@@ -2,13 +2,12 @@
 
 import Image from "next/image";
 import { useStore } from "../context/StoreContext";
-import { useCurrency } from "../context/CurrencyContext";
 import { useTranslation } from "../hooks/useTranslation";
 import styles from "../styles/WishlistSidebar.module.css";
+import PriceTag from "./PriceTag";
 
 export default function WishlistSidebar() {
   const { wishlistItems, wishlistOpen, closeWishlist, removeFromWishlist, addToCart, openCart } = useStore();
-  const { formatPrice } = useCurrency();
   const t = useTranslation();
 
   return (
@@ -40,7 +39,7 @@ export default function WishlistSidebar() {
                 </div>
                 <div className={styles.itemInfo}>
                   <p className={styles.itemName}>{product.name}</p>
-                  <p className={styles.itemPrice}>{formatPrice(product.price)}</p>
+                  <p className={styles.itemPrice}><PriceTag product={product} /></p>
                   <button
                     className={styles.addBtn}
                     onClick={() => { addToCart(product); openCart(); closeWishlist(); }}

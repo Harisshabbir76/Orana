@@ -131,6 +131,25 @@
 
 .priceInput:focus { border-color: #DB663B; }
 
+.priceFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.priceFields .priceInput { min-width: 0; }
+
+.fieldError {
+  margin: -8px 0 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #c0392b;
+}
+
+@media (max-width: 600px) {
+  .priceFields { grid-template-columns: 1fr; }
+}
+
 .previewGrid {
   display: flex;
   flex-wrap: wrap;

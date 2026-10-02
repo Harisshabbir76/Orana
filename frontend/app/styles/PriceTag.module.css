@@ -1,0 +1,10 @@
+.original {
+  color: #999999;
+  margin-inline-end: 6px;
+  text-decoration-thickness: 1px;
+}
+
+.discounted {
+  color: #A74419;
+  font-weight: 700;
+}

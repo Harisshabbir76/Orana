@@ -8,6 +8,7 @@ import { useCurrency } from "../../context/CurrencyContext";
 import { useStore } from "../../context/StoreContext";
 import { useTranslation } from "../../hooks/useTranslation";
 import styles from "../../styles/product-description/ProductDetail.module.css";
+import PriceTag from "../PriceTag";
 
 interface ProductImage { url: string; publicId: string; }
 
@@ -16,6 +17,7 @@ export interface ProductDetailData {
   name: string;
   nameAr?: string;
   price: number;
+  discountedPrice?: number | null;
   images: ProductImage[];
   inStock?: boolean;
   description?: string;
@@ -36,7 +38,7 @@ export default function ProductDetail({ product }: Props) {
   const [qty, setQty] = useState(1);
   const [openAcc, setOpenAcc] = useState<number | null>(null);
 
-  const { formatPrice, language } = useCurrency();
+  const { language } = useCurrency();
   const { addToCart, openCart } = useStore();
   const router = useRouter();
   const t = useTranslation();
@@ -154,7 +156,7 @@ export default function ProductDetail({ product }: Props) {
           {/* Name + Price */}
           <div className={styles.titleRow}>
             <h1 className={styles.productName}>{displayName}</h1>
-            <span className={styles.price}>{formatPrice(product.price)}</span>
+            <span className={styles.price}><PriceTag product={product} /></span>
           </div>
 
           {/* Stars */}

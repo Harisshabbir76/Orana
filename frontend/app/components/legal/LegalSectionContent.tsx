@@ -12,9 +12,9 @@ function paragraphs(text: string) {
   return text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
 }
 
-export default function LegalSectionContent({ section, index, ce }: { section: LegalSection; index: number; ce: CE }) {
+export default function LegalSectionContent({ section, idPrefix, index, ce }: { section: LegalSection; idPrefix: string; index: number; ce: CE }) {
   const { getContent, cmsMode } = usePageCMS();
-  const id = (part: string) => `legal-section-${index}-${part}`;
+  const id = (part: string) => `${idPrefix}-section-${index}-${part}`;
 
   const textParas = section.text ? paragraphs(getContent(id("text"), section.text)) : [];
   const afterParas = section.textAfter ? paragraphs(getContent(id("after"), section.textAfter)) : [];

@@ -119,7 +119,8 @@ const productSchema = new mongoose.Schema(
     descriptionAr: { type: String, trim: true, default: '' },
     washCare:      { type: String, trim: true, default: '' },
     washCareAr:    { type: String, trim: true, default: '' },
-    price:         { type: Number, required: true, min: 0 },
+    price:         { type: Number, required: true, min: 0 }, // original price
+    discountedPrice: { type: Number, default: null, min: 0 }, // optional sale price
     currency:    { type: String, default: 'Dhs.' },
     images:      [{ url: String, publicId: String }],
     showOnHomepage: { type: Boolean, default: false },
@@ -131,6 +132,23 @@ productSchema.virtual('inStock').get(function () {
   return this.stock === null || this.stock > 0;
 });
 const Product = mongoose.model('Product', productSchema);
+
+// Price a customer actually pays — discounted price when set and lower than the original
+function effectivePrice(p) {
+  const d = p.discountedPrice;
+  return d !== null && d !== undefined && d < p.price ? d : p.price;
+}
+
+// Parse an optional discounted price from form data — '' / null clears it
+function parseDiscountedPrice(value, price) {
+  if (value === undefined || value === null || value === '') return null;
+  const d = parseFloat(value);
+  if (isNaN(d) || d < 0) throw new Error('Discounted price must be a positive number');
+  if (price !== undefined && !isNaN(price) && d >= price) {
+    throw new Error('Discounted price must be lower than the original price');
+  }
+  return d;
+}
 
 // ContactMessage schema & model
 const contactMessageSchema = new mongoose.Schema(
@@ -482,7 +500,8 @@ app.get('/api/products/:id', requireDb, async (req, res) => {
 // POST create product — accepts multiple images
 app.post('/api/products', requireDb, requireAdmin, upload.array('images', 20), async (req, res) => {
   try {
-    const { name, nameAr, description, descriptionAr, washCare, washCareAr, price, showOnHomepage, stock } = req.body;
+    const { name, nameAr, description, descriptionAr, washCare, washCareAr, price, discountedPrice, showOnHomepage, stock } = req.body;
+    const discounted = parseDiscountedPrice(discountedPrice, parseFloat(price));
 
     const images = req.files?.length
       ? await uploadMany(req.files)
@@ -497,6 +516,7 @@ app.post('/api/products', requireDb, requireAdmin, upload.array('images', 20), a
       washCare:      washCare      || '',
       washCareAr:    washCareAr    || '',
       price: parseFloat(price),
+      discountedPrice: discounted,
       currency: 'Dhs.',
       images,
       showOnHomepage: showOnHomepage === 'true' || showOnHomepage === true,
@@ -512,7 +532,7 @@ app.post('/api/products', requireDb, requireAdmin, upload.array('images', 20), a
 app.put('/api/products/:id', requireDb, requireAdmin, upload.array('images', 20), async (req, res) => {
   try {
     const updates = {};
-    const { name, nameAr, description, descriptionAr, washCare, washCareAr, price, showOnHomepage, removeImageIds, stock } = req.body;
+    const { name, nameAr, description, descriptionAr, washCare, washCareAr, price, discountedPrice, showOnHomepage, removeImageIds, stock } = req.body;
 
     if (name          !== undefined) {
       updates.name = name;
@@ -533,6 +553,10 @@ app.put('/api/products/:id', requireDb, requireAdmin, upload.array('images', 20)
 
     const existing = await Product.findById(req.params.id);
     if (!existing) return res.status(404).json({ error: 'Product not found' });
+
+    if (discountedPrice !== undefined) {
+      updates.discountedPrice = parseDiscountedPrice(discountedPrice, updates.price ?? existing.price);
+    }
 
     // Remove specific images if requested
     let currentImages = existing.images || [];
@@ -573,6 +597,91 @@ app.delete('/api/products/:id', requireDb, requireAdmin, async (req, res) => {
   }
 });
 
+// ── Coupon routes ───────────────────────────────────────
+
+const couponSchema = new mongoose.Schema(
+  {
+    code:       { type: String, required: true, unique: true, trim: true, uppercase: true },
+    percentage: { type: Number, required: true, min: 1, max: 100 },
+    startsAt:   { type: Date, required: true },
+    expiresAt:  { type: Date, required: true },
+    active:     { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+const Coupon = mongoose.model('Coupon', couponSchema);
+
+function couponFromBody(body) {
+  const code = String(body.code || '').trim().toUpperCase();
+  const percentage = Number(body.percentage);
+  const startsAt = new Date(body.startsAt);
+  const expiresAt = new Date(body.expiresAt);
+  if (!code) throw new Error('Coupon code is required');
+  if (!/^[A-Z0-9_-]+$/.test(code)) throw new Error('Code may only contain letters, numbers, - and _');
+  if (isNaN(percentage) || percentage < 1 || percentage > 100) throw new Error('Discount must be between 1 and 100%');
+  if (isNaN(startsAt.getTime()) || isNaN(expiresAt.getTime())) throw new Error('Start and end time are required');
+  if (expiresAt <= startsAt) throw new Error('End time must be after start time');
+  return { code, percentage, startsAt, expiresAt, active: body.active !== false };
+}
+
+// Returns the coupon if it can be used right now, otherwise throws with a customer-facing reason
+async function findUsableCoupon(rawCode) {
+  const code = String(rawCode || '').trim().toUpperCase();
+  if (!code) throw new Error('Please enter a coupon code');
+  const coupon = await Coupon.findOne({ code });
+  const now = new Date();
+  if (!coupon || !coupon.active) throw new Error('Invalid coupon code');
+  if (now < coupon.startsAt) throw new Error('This coupon is not active yet');
+  if (now > coupon.expiresAt) throw new Error('This coupon has expired');
+  return coupon;
+}
+
+app.get('/api/coupons', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const coupons = await Coupon.find().sort({ createdAt: -1 });
+    res.json(coupons);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/coupons', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.create(couponFromBody(req.body));
+    res.status(201).json(coupon);
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: 'A coupon with this code already exists' });
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.put('/api/coupons/:id', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndUpdate(req.params.id, couponFromBody(req.body), { new: true, runValidators: true });
+    if (!coupon) return res.status(404).json({ error: 'Coupon not found' });
+    res.json(coupon);
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ error: 'A coupon with this code already exists' });
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.delete('/api/coupons/:id', requireDb, requireAdmin, async (req, res) => {
+  try {
+    const coupon = await Coupon.findByIdAndDelete(req.params.id);
+    if (!coupon) return res.status(404).json({ error: 'Coupon not found' });
+    res.json({ message: 'Coupon deleted' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Public — check a code at checkout
+app.post('/api/coupons/validate', requireDb, async (req, res) => {
+  try {
+    const coupon = await findUsableCoupon(req.body.code);
+    res.json({ code: coupon.code, percentage: coupon.percentage });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // ── Order routes ────────────────────────────────────────
 
 const orderSchema = new mongoose.Schema(
@@ -600,6 +709,9 @@ const orderSchema = new mongoose.Schema(
     currencyLabel: { type: String, default: 'Dhs. ' },
     paymentMethod: { type: String, enum: ['cod', 'card'], default: 'cod' },
     subtotal: Number,
+    couponCode:    { type: String, default: null },
+    couponPercent: { type: Number, default: 0 },
+    discount:      { type: Number, default: 0 },
     shipping: { type: Number, default: 0 },
     vat:      { type: Number, default: 0 },
     total:    Number,
@@ -629,10 +741,11 @@ app.post('/api/orders', requireDb, async (req, res) => {
       return res.status(400).json({ error: 'items and customer are required' });
     }
 
-    // Check stock for each item
+    // Check stock for each item, and charge the current (possibly discounted) catalogue price
     for (const item of items) {
       if (!item.productId) continue;
-      const product = await Product.findById(item.productId).select('stock name');
+      const product = await Product.findById(item.productId).select('stock name price discountedPrice');
+      if (product) item.price = effectivePrice(product);
       if (product && product.stock !== null && product.stock !== undefined) {
         if (product.stock === 0) {
           return res.status(400).json({ error: `"${product.name}" is out of stock` });
@@ -645,11 +758,24 @@ app.post('/api/orders', requireDb, async (req, res) => {
 
     // Recompute totals server-side so VAT is always applied consistently
     const subtotal = round2(items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0));
-    const shipping = round2(Number(req.body.shipping) || 0);
-    const vat      = round2((subtotal + shipping) * VAT_RATE);
-    const total    = round2(subtotal + shipping + vat);
 
-    const order = await Order.create({ items, customer, paymentMethod, subtotal, shipping, vat, total, userId: userId ?? null, currency: currency ?? 'AED' });
+    // Coupon — percentage off the products subtotal; re-validated so expired codes can't slip through
+    let coupon = null;
+    if (req.body.couponCode) {
+      try { coupon = await findUsableCoupon(req.body.couponCode); }
+      catch (err) { return res.status(400).json({ error: err.message }); }
+    }
+    const discount = coupon ? round2(subtotal * coupon.percentage / 100) : 0;
+
+    const shipping = round2(Number(req.body.shipping) || 0);
+    const vat      = round2((subtotal - discount + shipping) * VAT_RATE);
+    const total    = round2(subtotal - discount + shipping + vat);
+
+    const order = await Order.create({
+      items, customer, paymentMethod, subtotal, shipping, vat, total,
+      couponCode: coupon?.code ?? null, couponPercent: coupon?.percentage ?? 0, discount,
+      userId: userId ?? null, currency: currency ?? 'AED',
+    });
 
     // Decrement stock for each item
     for (const item of items) {
@@ -693,7 +819,11 @@ app.post('/api/orders', requireDb, async (req, res) => {
               <tr>
                 <td style="padding:6px 12px;font-size:11px;color:#888;">Subtotal</td>
                 <td style="padding:6px 12px;font-size:11px;color:#888;text-align:right;">${fmtEmail(subtotal)}</td>
-              </tr>
+              </tr>${discount > 0 ? `
+              <tr>
+                <td style="padding:6px 12px;font-size:11px;color:#888;">Coupon ${coupon.code} (${coupon.percentage}% off)</td>
+                <td style="padding:6px 12px;font-size:11px;color:#888;text-align:right;">− ${fmtEmail(discount)}</td>
+              </tr>` : ''}
               <tr>
                 <td style="padding:6px 12px;font-size:11px;color:#888;">Shipping</td>
                 <td style="padding:6px 12px;font-size:11px;color:#888;text-align:right;">${shipping === 0 ? 'Free' : fmtEmail(shipping)}</td>

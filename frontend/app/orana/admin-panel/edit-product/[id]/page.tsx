@@ -25,6 +25,7 @@ export default function EditProduct() {
   const [washCare, setWashCare] = useState("");
   const [washCareAr, setWashCareAr] = useState("");
   const [price, setPrice] = useState("");
+  const [discountedPrice, setDiscountedPrice] = useState("");
   const [stock, setStock] = useState("");
   const [showOnHomepage, setShowOnHomepage] = useState(false);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
@@ -49,6 +50,7 @@ export default function EditProduct() {
         setWashCare(data.washCare ?? "");
         setWashCareAr(data.washCareAr ?? "");
         setPrice(String(data.price ?? ""));
+        setDiscountedPrice(data.discountedPrice !== null && data.discountedPrice !== undefined ? String(data.discountedPrice) : "");
         setStock(data.stock !== null && data.stock !== undefined ? String(data.stock) : "");
         setShowOnHomepage(data.showOnHomepage ?? false);
         setExistingImages(data.images ?? []);
@@ -60,6 +62,9 @@ export default function EditProduct() {
         setPageReady(true);
       });
   }, [id]);
+
+  const discountInvalid =
+    discountedPrice !== "" && price !== "" && parseFloat(discountedPrice) >= parseFloat(price);
 
   function removeExisting(publicId: string) {
     setExistingImages((prev) => prev.filter((img) => img.publicId !== publicId));
@@ -80,6 +85,7 @@ export default function EditProduct() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (discountInvalid) return;
     setStatus("saving");
     setMessage("");
 
@@ -91,6 +97,7 @@ export default function EditProduct() {
     fd.append("washCare", washCare);
     fd.append("washCareAr", washCareAr);
     fd.append("price", price);
+    fd.append("discountedPrice", discountedPrice);
     fd.append("stock", stock);
     fd.append("showOnHomepage", String(showOnHomepage));
     removeIds.forEach((pid) => fd.append("removeImageIds", pid));
@@ -233,23 +240,46 @@ export default function EditProduct() {
         </div>
 
         {/* Price */}
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor="price">Price (Dhs.)</label>
-          <div className={styles.priceRow}>
-            <span className={styles.currencyTag}>Dhs.</span>
-            <input
-              id="price"
-              className={styles.priceInput}
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              min="0"
-              step="0.01"
-              required
-            />
+        <div className={styles.priceFields}>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="price">Original Price (Dhs.)</label>
+            <div className={styles.priceRow}>
+              <span className={styles.currencyTag}>Dhs.</span>
+              <input
+                id="price"
+                className={styles.priceInput}
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min="0"
+                step="0.01"
+                required
+              />
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="discountedPrice">
+              Discounted Price <span className={styles.hint}>(optional)</span>
+            </label>
+            <div className={styles.priceRow}>
+              <span className={styles.currencyTag}>Dhs.</span>
+              <input
+                id="discountedPrice"
+                className={styles.priceInput}
+                type="number"
+                placeholder="Leave empty for no discount"
+                value={discountedPrice}
+                onChange={(e) => setDiscountedPrice(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
           </div>
         </div>
-
+        {discountInvalid && (
+          <p className={styles.fieldError}>Discounted price must be lower than the original price.</p>
+        )}
         {/* Stock */}
         <div className={styles.field}>
           <label className={styles.label} htmlFor="stock">
@@ -360,7 +390,7 @@ export default function EditProduct() {
           <button
             type="submit"
             className={styles.submitBtn}
-            disabled={status === "saving"}
+            disabled={status === "saving" || discountInvalid}
           >
             {status === "saving" ? "Saving…" : "Save Changes"}
           </button>
