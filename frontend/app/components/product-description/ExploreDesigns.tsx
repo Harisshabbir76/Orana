@@ -59,8 +59,14 @@ export default function ExploreDesigns({ currentId }: Props) {
         {products.map((product) => {
           const firstImage = product.images?.[0]?.url ?? null;
           const oos = product.inStock === false;
+          const href = `/shop/${product.slug || product._id}`;
           return (
-            <div key={product._id} className={`${styles.card} ${oos ? styles.cardOos : ""}`}>
+            <div
+              key={product._id}
+              className={`${styles.card} ${oos ? styles.cardOos : ""}`}
+              // Whole card opens the product page — except its own buttons and links
+              onClick={(e) => { if (!(e.target as HTMLElement).closest("button, a")) router.push(href); }}
+            >
               <div className={styles.imageWrap}>
                 {firstImage ? (
                   <Image
@@ -90,7 +96,7 @@ export default function ExploreDesigns({ currentId }: Props) {
                     <button
                       className={styles.iconBtn}
                       aria-label="Quick view"
-                      onClick={() => router.push(`/shop/${product.slug || product._id}`)}
+                      onClick={() => router.push(href)}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -114,7 +120,7 @@ export default function ExploreDesigns({ currentId }: Props) {
               </div>
 
               <div className={styles.info}>
-                <p className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</p>
+                <Link href={href} className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</Link>
                 <p className={styles.price}><PriceTag product={product} /></p>
               </div>
             </div>

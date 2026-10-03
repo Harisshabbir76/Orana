@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useStore } from "../../context/StoreContext";
@@ -62,8 +63,14 @@ export default function Collection({ initialProducts = [] }: Props) {
           {products.map((product) => {
             const firstImage = product.images?.[0]?.url ?? null;
             const oos = product.inStock === false;
+            const href = `/shop/${product.slug || product._id}`;
             return (
-              <div key={product._id} className={`${styles.card} ${oos ? styles.cardOos : ""}`}>
+              <div
+                key={product._id}
+                className={`${styles.card} ${oos ? styles.cardOos : ""}`}
+                // Whole card opens the product page — except its own buttons and links
+                onClick={(e) => { if (!(e.target as HTMLElement).closest("button, a")) router.push(href); }}
+              >
                 <div className={styles.imageWrap}>
                   {firstImage ? (
                     <Image
@@ -90,7 +97,7 @@ export default function Collection({ initialProducts = [] }: Props) {
                           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
                       </button>
-                      <button className={styles.iconBtn} aria-label="Quick view" onClick={() => router.push(`/shop/${product.slug || product._id}`)}>
+                      <button className={styles.iconBtn} aria-label="Quick view" onClick={() => router.push(href)}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                           <circle cx="12" cy="12" r="3"/>
@@ -115,7 +122,7 @@ export default function Collection({ initialProducts = [] }: Props) {
                 </div>
 
                 <div className={styles.info}>
-                  <p className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</p>
+                  <Link href={href} className={styles.name}>{isAr && product.nameAr ? product.nameAr : product.name}</Link>
                   <p className={styles.price}><PriceTag product={product} /></p>
                 </div>
               </div>
